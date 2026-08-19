@@ -95,3 +95,7 @@ vercel.json
 - dado médico ou pessoal sensível.
 
 O controle de notas deverá permanecer em ambiente privado do professor.
+
+
+
+© 1TDSPW. Todos os direitos reservados.
