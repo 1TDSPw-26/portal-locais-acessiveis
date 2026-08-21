@@ -78,7 +78,6 @@ jobs:
             const TECH_TEAM = "tech-leads";
             const QA_TEAM = "qas";
 
-            const QA_FIELD_NAME = "QA responsável";
             const CI_CHECK_NAME = "lint-build-test";
 
             // ============================================================
@@ -346,48 +345,6 @@ jobs:
               );
             }
 
-            async function getTextFieldValue(
-              itemId,
-              fieldName
-            ) {
-              const result =
-                await github.graphql(`
-                  query($itemId: ID!) {
-                    node(id: $itemId) {
-                      ... on ProjectV2Item {
-                        fieldValues(first: 100) {
-                          nodes {
-                            ... on ProjectV2ItemFieldTextValue {
-                              text
-
-                              field {
-                                ... on ProjectV2Field {
-                                  name
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                `, {
-                  itemId,
-                });
-
-              const value =
-                result.node
-                  ?.fieldValues
-                  ?.nodes
-                  ?.find(
-                    (value) =>
-                      value?.field?.name ===
-                      fieldName
-                  );
-
-              return value?.text?.trim() || "";
-            }
-
             // ============================================================
             // ISSUE <-> PR
             // ============================================================
@@ -543,13 +500,6 @@ jobs:
               }
             }
 
-            function normalizeUsername(value) {
-              return (value || "")
-                .trim()
-                .replace(/^@/, "")
-                .toLowerCase();
-            }
-
             // ============================================================
             // REVIEWS
             // ============================================================
@@ -594,10 +544,7 @@ jobs:
               return [...latest.values()];
             }
 
-            async function classifyReviews(
-              pr,
-              qaResponsible
-            ) {
+            async function classifyReviews(pr) {
               const reviews =
                 await getLatestReviews(
                   pr.number
@@ -635,16 +582,6 @@ jobs:
                     username
                   );
 
-                const responsibleQa =
-                  qa &&
-                  normalizeUsername(
-                    qaResponsible
-                  ) !== "" &&
-                  normalized ===
-                    normalizeUsername(
-                      qaResponsible
-                    );
-
                 if (
                   tech &&
                   review.state === "APPROVED"
@@ -661,14 +598,14 @@ jobs:
                 }
 
                 if (
-                  responsibleQa &&
+                  qa &&
                   review.state === "APPROVED"
                 ) {
                   qaApproved = true;
                 }
 
                 if (
-                  responsibleQa &&
+                  qa &&
                   review.state ===
                     "CHANGES_REQUESTED"
                 ) {
@@ -777,23 +714,8 @@ jobs:
                 return;
               }
 
-              const qaResponsible =
-                await getTextFieldValue(
-                  itemId,
-                  QA_FIELD_NAME
-                );
-
-              if (!qaResponsible) {
-                core.warning(
-                  `Issue #${issue.number} não possui QA responsável definido.`
-                );
-              }
-
               const reviews =
-                await classifyReviews(
-                  pr,
-                  qaResponsible
-                );
+                await classifyReviews(pr);
 
               const green =
                 await ciPassed(
@@ -814,7 +736,7 @@ jobs:
                 return;
               }
 
-              // Tech + QA responsável + CI.
+              // Tech + QA + CI.
               if (
                 reviews.techApproved &&
                 reviews.qaApproved &&
