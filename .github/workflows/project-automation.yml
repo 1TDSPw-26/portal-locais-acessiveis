@@ -1,0 +1,984 @@
+name: Automação do GitHub Project
+
+on:
+  issues:
+    types:
+      - opened
+      - closed
+
+  pull_request:
+    branches:
+      - develop
+    types:
+      - opened
+      - edited
+      - reopened
+      - ready_for_review
+      - converted_to_draft
+      - synchronize
+      - closed
+
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
+
+  workflow_run:
+    workflows:
+      - "Verificação de qualidade"
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-automation-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  update-project:
+    name: Atualizar fluxo do Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Atualizar Project
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const ORG = "1TDSPw-26";
+            const REPO = "portal-locais-acessiveis";
+            const PROJECT_NUMBER = 3;
+
+            const STATUS = {
+              BACKLOG: "Backlog",
+              DEVELOPMENT: "Em desenvolvimento",
+              TECH_REVIEW: "Em revisão técnica",
+              QA: "Em testes do QA",
+              CHANGES: "Correção solicitada",
+              APPROVED: "Aprovada",
+              DONE: "Concluída",
+            };
+
+            const TECH_TEAM = "tech-leads";
+            const QA_TEAM = "qas";
+
+            const QA_FIELD_NAME = "QA responsável";
+            const CI_CHECK_NAME = "lint-build-test";
+
+            // ============================================================
+            // PROJECT
+            // ============================================================
+
+            async function getProject() {
+              const result = await github.graphql(`
+                query($org: String!, $number: Int!) {
+                  organization(login: $org) {
+                    projectV2(number: $number) {
+                      id
+
+                      fields(first: 100) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+
+                          ... on ProjectV2Field {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `, {
+                org: ORG,
+                number: PROJECT_NUMBER,
+              });
+
+              const project = result.organization?.projectV2;
+
+              if (!project) {
+                throw new Error(
+                  `Project #${PROJECT_NUMBER} não encontrado em ${ORG}.`
+                );
+              }
+
+              const statusField = project.fields.nodes.find(
+                (field) => field?.name === "Status"
+              );
+
+              if (!statusField?.options) {
+                throw new Error(
+                  'Campo "Status" não encontrado no Project.'
+                );
+              }
+
+              return {
+                id: project.id,
+                statusFieldId: statusField.id,
+
+                statusOptions: new Map(
+                  statusField.options.map(
+                    (option) => [option.name, option.id]
+                  )
+                ),
+              };
+            }
+
+            async function findProjectItem(
+              projectId,
+              contentId
+            ) {
+              let after = null;
+
+              do {
+                const result = await github.graphql(`
+                  query(
+                    $projectId: ID!
+                    $after: String
+                  ) {
+                    node(id: $projectId) {
+                      ... on ProjectV2 {
+                        items(
+                          first: 100
+                          after: $after
+                        ) {
+                          pageInfo {
+                            hasNextPage
+                            endCursor
+                          }
+
+                          nodes {
+                            id
+
+                            content {
+                              ... on Issue {
+                                id
+                              }
+
+                              ... on PullRequest {
+                                id
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                `, {
+                  projectId,
+                  after,
+                });
+
+                const items = result.node.items;
+
+                const item = items.nodes.find(
+                  (node) =>
+                    node.content?.id === contentId
+                );
+
+                if (item) {
+                  return item;
+                }
+
+                after =
+                  items.pageInfo.hasNextPage
+                    ? items.pageInfo.endCursor
+                    : null;
+
+              } while (after);
+
+              return null;
+            }
+
+            async function ensureIssueInProject(
+              project,
+              issueNodeId
+            ) {
+              const existing =
+                await findProjectItem(
+                  project.id,
+                  issueNodeId
+                );
+
+              if (existing) {
+                return existing.id;
+              }
+
+              const result = await github.graphql(`
+                mutation(
+                  $projectId: ID!
+                  $contentId: ID!
+                ) {
+                  addProjectV2ItemById(
+                    input: {
+                      projectId: $projectId
+                      contentId: $contentId
+                    }
+                  ) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                projectId: project.id,
+                contentId: issueNodeId,
+              });
+
+              core.info(
+                "Issue adicionada ao Project."
+              );
+
+              return (
+                result.addProjectV2ItemById.item.id
+              );
+            }
+
+            async function setStatus(
+              project,
+              itemId,
+              statusName
+            ) {
+              const optionId =
+                project.statusOptions.get(
+                  statusName
+                );
+
+              if (!optionId) {
+                throw new Error(
+                  `Status "${statusName}" não existe no Project.`
+                );
+              }
+
+              await github.graphql(`
+                mutation(
+                  $projectId: ID!
+                  $itemId: ID!
+                  $fieldId: ID!
+                  $optionId: String!
+                ) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: {
+                        singleSelectOptionId: $optionId
+                      }
+                    }
+                  ) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                projectId: project.id,
+                itemId,
+                fieldId:
+                  project.statusFieldId,
+                optionId,
+              });
+
+              core.info(
+                `Status → ${statusName}`
+              );
+            }
+
+            async function removePrFromProject(
+              project,
+              prNodeId
+            ) {
+              const item =
+                await findProjectItem(
+                  project.id,
+                  prNodeId
+                );
+
+              if (!item) {
+                return;
+              }
+
+              await github.graphql(`
+                mutation(
+                  $projectId: ID!
+                  $itemId: ID!
+                ) {
+                  deleteProjectV2Item(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                    }
+                  ) {
+                    deletedItemId
+                  }
+                }
+              `, {
+                projectId: project.id,
+                itemId: item.id,
+              });
+
+              core.info(
+                "PR removido do Project."
+              );
+            }
+
+            async function getTextFieldValue(
+              itemId,
+              fieldName
+            ) {
+              const result =
+                await github.graphql(`
+                  query($itemId: ID!) {
+                    node(id: $itemId) {
+                      ... on ProjectV2Item {
+                        fieldValues(first: 100) {
+                          nodes {
+                            ... on ProjectV2ItemFieldTextValue {
+                              text
+
+                              field {
+                                ... on ProjectV2Field {
+                                  name
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                `, {
+                  itemId,
+                });
+
+              const value =
+                result.node
+                  ?.fieldValues
+                  ?.nodes
+                  ?.find(
+                    (value) =>
+                      value?.field?.name ===
+                      fieldName
+                  );
+
+              return value?.text?.trim() || "";
+            }
+
+            // ============================================================
+            // ISSUE <-> PR
+            // ============================================================
+
+            function linkedIssueNumbers(body) {
+              const regex =
+                /\bCloses\s+#(\d+)\b/gi;
+
+              const numbers = [];
+              let match;
+
+              while (
+                (match = regex.exec(body || "")) !==
+                null
+              ) {
+                numbers.push(
+                  Number(match[1])
+                );
+              }
+
+              return [...new Set(numbers)];
+            }
+
+            async function commentInvalidLink(
+              prNumber,
+              reason
+            ) {
+              const marker =
+                "<!-- project-automation-link-error -->";
+
+              const comments =
+                await github.paginate(
+                  github.rest.issues.listComments,
+                  {
+                    owner: ORG,
+                    repo: REPO,
+                    issue_number: prNumber,
+                    per_page: 100,
+                  }
+                );
+
+              const existing =
+                comments.find(
+                  (comment) =>
+                    comment.body?.includes(
+                      marker
+                    )
+                );
+
+              const body = `${marker}
+            ⚠️ **Vínculo com a Issue inválido.**
+
+            ${reason}
+
+            O Pull Request deve possuir exatamente um vínculo no formato:
+
+            \`\`\`text
+            Closes #NUMERO
+            \`\`\`
+
+            Corrija a descrição do Pull Request.`;
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: ORG,
+                  repo: REPO,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: ORG,
+                  repo: REPO,
+                  issue_number: prNumber,
+                  body,
+                });
+              }
+            }
+
+            async function getLinkedIssue(pr) {
+              const numbers =
+                linkedIssueNumbers(pr.body);
+
+              if (numbers.length !== 1) {
+                const reason =
+                  numbers.length === 0
+                    ? "Nenhum `Closes #NUMERO` foi encontrado."
+                    : "Mais de uma Issue foi vinculada usando `Closes`.";
+
+                await commentInvalidLink(
+                  pr.number,
+                  reason
+                );
+
+                throw new Error(reason);
+              }
+
+              const issueNumber = numbers[0];
+
+              const { data: issue } =
+                await github.rest.issues.get({
+                  owner: ORG,
+                  repo: REPO,
+                  issue_number: issueNumber,
+                });
+
+              if (issue.pull_request) {
+                const reason =
+                  `#${issueNumber} é um Pull Request, não uma Issue.`;
+
+                await commentInvalidLink(
+                  pr.number,
+                  reason
+                );
+
+                throw new Error(reason);
+              }
+
+              return issue;
+            }
+
+            // ============================================================
+            // PAPÉIS
+            // ============================================================
+
+            async function isTeamMember(
+              teamSlug,
+              username
+            ) {
+              try {
+                const { data } =
+                  await github.rest.teams
+                    .getMembershipForUserInOrg({
+                      org: ORG,
+                      team_slug: teamSlug,
+                      username,
+                    });
+
+                return data.state === "active";
+
+              } catch (error) {
+                if (error.status === 404) {
+                  return false;
+                }
+
+                throw error;
+              }
+            }
+
+            function normalizeUsername(value) {
+              return (value || "")
+                .trim()
+                .replace(/^@/, "")
+                .toLowerCase();
+            }
+
+            // ============================================================
+            // REVIEWS
+            // ============================================================
+
+            async function getLatestReviews(
+              prNumber
+            ) {
+              const reviews =
+                await github.paginate(
+                  github.rest.pulls.listReviews,
+                  {
+                    owner: ORG,
+                    repo: REPO,
+                    pull_number: prNumber,
+                    per_page: 100,
+                  }
+                );
+
+              const latest = new Map();
+
+              for (const review of reviews) {
+                const username =
+                  review.user?.login;
+
+                if (!username) {
+                  continue;
+                }
+
+                if (
+                  review.state === "COMMENTED" ||
+                  review.state === "DISMISSED"
+                ) {
+                  continue;
+                }
+
+                latest.set(
+                  username.toLowerCase(),
+                  review
+                );
+              }
+
+              return [...latest.values()];
+            }
+
+            async function classifyReviews(
+              pr,
+              qaResponsible
+            ) {
+              const reviews =
+                await getLatestReviews(
+                  pr.number
+                );
+
+              let techApproved = false;
+              let techChangesRequested = false;
+
+              let qaApproved = false;
+              let qaChangesRequested = false;
+
+              for (const review of reviews) {
+                const username =
+                  review.user.login;
+
+                const normalized =
+                  username.toLowerCase();
+
+                if (
+                  normalized ===
+                  pr.user.login.toLowerCase()
+                ) {
+                  continue;
+                }
+
+                const tech =
+                  await isTeamMember(
+                    TECH_TEAM,
+                    username
+                  );
+
+                const qa =
+                  await isTeamMember(
+                    QA_TEAM,
+                    username
+                  );
+
+                const responsibleQa =
+                  qa &&
+                  normalizeUsername(
+                    qaResponsible
+                  ) !== "" &&
+                  normalized ===
+                    normalizeUsername(
+                      qaResponsible
+                    );
+
+                if (
+                  tech &&
+                  review.state === "APPROVED"
+                ) {
+                  techApproved = true;
+                }
+
+                if (
+                  tech &&
+                  review.state ===
+                    "CHANGES_REQUESTED"
+                ) {
+                  techChangesRequested = true;
+                }
+
+                if (
+                  responsibleQa &&
+                  review.state === "APPROVED"
+                ) {
+                  qaApproved = true;
+                }
+
+                if (
+                  responsibleQa &&
+                  review.state ===
+                    "CHANGES_REQUESTED"
+                ) {
+                  qaChangesRequested = true;
+                }
+              }
+
+              return {
+                techApproved,
+                techChangesRequested,
+                qaApproved,
+                qaChangesRequested,
+              };
+            }
+
+            // ============================================================
+            // CI
+            // ============================================================
+
+            async function ciPassed(sha) {
+              const { data } =
+                await github.rest.checks.listForRef({
+                  owner: ORG,
+                  repo: REPO,
+                  ref: sha,
+                  per_page: 100,
+                });
+
+              const check =
+                data.check_runs.find(
+                  (run) =>
+                    run.name ===
+                    CI_CHECK_NAME
+                );
+
+              if (!check) {
+                core.info(
+                  `CI "${CI_CHECK_NAME}" ainda não encontrado.`
+                );
+
+                return false;
+              }
+
+              core.info(
+                `CI: ${check.status}/${check.conclusion}`
+              );
+
+              return (
+                check.status === "completed" &&
+                check.conclusion === "success"
+              );
+            }
+
+            // ============================================================
+            // MÁQUINA DE ESTADOS
+            // ============================================================
+
+            async function reevaluatePullRequest(
+              project,
+              pr
+            ) {
+              if (pr.base.ref !== "develop") {
+                core.info(
+                  `PR #${pr.number} ignorado: base ${pr.base.ref}.`
+                );
+
+                return;
+              }
+
+              await removePrFromProject(
+                project,
+                pr.node_id
+              );
+
+              const issue =
+                await getLinkedIssue(pr);
+
+              const itemId =
+                await ensureIssueInProject(
+                  project,
+                  issue.node_id
+                );
+
+              // PR fechado sem merge.
+              if (
+                pr.state === "closed" &&
+                !pr.merged
+              ) {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.DEVELOPMENT
+                );
+
+                return;
+              }
+
+              // Draft nunca deve avançar.
+              if (pr.draft) {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.DEVELOPMENT
+                );
+
+                return;
+              }
+
+              const qaResponsible =
+                await getTextFieldValue(
+                  itemId,
+                  QA_FIELD_NAME
+                );
+
+              if (!qaResponsible) {
+                core.warning(
+                  `Issue #${issue.number} não possui QA responsável definido.`
+                );
+              }
+
+              const reviews =
+                await classifyReviews(
+                  pr,
+                  qaResponsible
+                );
+
+              const green =
+                await ciPassed(
+                  pr.head.sha
+                );
+
+              // Pedido de alteração possui maior prioridade.
+              if (
+                reviews.techChangesRequested ||
+                reviews.qaChangesRequested
+              ) {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.CHANGES
+                );
+
+                return;
+              }
+
+              // Tech + QA responsável + CI.
+              if (
+                reviews.techApproved &&
+                reviews.qaApproved &&
+                green
+              ) {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.APPROVED
+                );
+
+                return;
+              }
+
+              // Tech aprovado + CI.
+              if (
+                reviews.techApproved &&
+                green
+              ) {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.QA
+                );
+
+                return;
+              }
+
+              // PR pronto, mas ainda sem condições
+              // para avançar.
+              await setStatus(
+                project,
+                itemId,
+                STATUS.TECH_REVIEW
+              );
+            }
+
+            // ============================================================
+            // EXECUÇÃO
+            // ============================================================
+
+            const project =
+              await getProject();
+
+            const event =
+              context.eventName;
+
+            const action =
+              context.payload.action;
+
+            core.info(
+              `Evento: ${event}/${action || "n/a"}`
+            );
+
+            // ------------------------------------------------------------
+            // ISSUE
+            // ------------------------------------------------------------
+
+            if (event === "issues") {
+              const issue =
+                context.payload.issue;
+
+              const itemId =
+                await ensureIssueInProject(
+                  project,
+                  issue.node_id
+                );
+
+              if (action === "opened") {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.BACKLOG
+                );
+
+                return;
+              }
+
+              if (action === "closed") {
+                await setStatus(
+                  project,
+                  itemId,
+                  STATUS.DONE
+                );
+
+                return;
+              }
+
+              return;
+            }
+
+            // ------------------------------------------------------------
+            // PULL REQUEST
+            // ------------------------------------------------------------
+
+            if (event === "pull_request") {
+              const pr =
+                context.payload.pull_request;
+
+              if (
+                pr.base.ref !== "develop"
+              ) {
+                return;
+              }
+
+              await reevaluatePullRequest(
+                project,
+                pr
+              );
+
+              return;
+            }
+
+            // ------------------------------------------------------------
+            // REVIEW
+            // ------------------------------------------------------------
+
+            if (
+              event ===
+              "pull_request_review"
+            ) {
+              const pr =
+                context.payload.pull_request;
+
+              if (
+                pr.base.ref !== "develop"
+              ) {
+                core.info(
+                  "Review ignorado: PR não aponta para develop."
+                );
+
+                return;
+              }
+
+              await reevaluatePullRequest(
+                project,
+                pr
+              );
+
+              return;
+            }
+
+            // ------------------------------------------------------------
+            // CI
+            // ------------------------------------------------------------
+
+            if (
+              event === "workflow_run" &&
+              context.payload.workflow_run
+                .conclusion === "success"
+            ) {
+              const prs =
+                context.payload.workflow_run
+                  .pull_requests || [];
+
+              if (prs.length === 0) {
+                core.info(
+                  "CI concluído sem PR associado."
+                );
+
+                return;
+              }
+
+              for (const prRef of prs) {
+                const { data: pr } =
+                  await github.rest.pulls.get({
+                    owner: ORG,
+                    repo: REPO,
+                    pull_number:
+                      prRef.number,
+                  });
+
+                if (
+                  pr.base.ref !== "develop" ||
+                  pr.state !== "open"
+                ) {
+                  continue;
+                }
+
+                await reevaluatePullRequest(
+                  project,
+                  pr
+                );
+              }
+
+              return;
+            }
