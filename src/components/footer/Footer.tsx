@@ -41,8 +41,8 @@ export function Footer() {
         <div>
           <h4 className="text-base font-semibold mb-4">Institucional</h4>
           <ul className="space-y-3">
-            <li><a href="#projeto-academico" className="text-gray-300 text-sm hover:text-white transition-colors">Projeto acadêmico — FIAP</a></li>
-            <li><a href="#semestre" className="text-gray-300 text-sm hover:text-white transition-colors">2º semestre de ADS — 2026</a></li>
+            <li><span className="text-gray-300 text-sm">Projeto acadêmico — FIAP</span></li>
+            <li><span className="text-gray-300 text-sm">2º semestre de ADS — 2026</span></li>
           </ul>
         </div>
 
