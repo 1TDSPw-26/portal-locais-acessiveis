@@ -1,7 +1,7 @@
 
 import { Routes, Route } from 'react-router-dom'
 
-import MainLayout from '../layouts/MainLayout/Mainlayout'
+import MainLayout from '../components/MainLayout/Main'
 import Cadastro from '../pages/Cadastro/Cadastro'
 import Home from '../pages/Home/Home'
 import Locais from '../pages/Locais/Locais'
