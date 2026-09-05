@@ -1,14 +1,14 @@
 const footerNavigation = [
-  { label: 'Início', href: '#inicio' },
-  { label: 'Locais', href: '#locais' },
-  { label: 'Cadastrar local', href: '#cadastrar-local' },
-  { label: 'Sobre', href: '#sobre' },
+  { label: 'Início', href: '/' },
+  { label: 'Locais', href: '/locais' },
+  { label: 'Cadastrar local', href: '/cadastrar-local' },
+  { label: 'Sobre', href: '/sobre' },
 ]
 
 const projectLinks = [
-  { label: 'Sobre o portal', href: '#sobre' },
-  { label: 'Acessibilidade', href: '#acessibilidade' },
-  { label: 'Informações do projeto', href: '#informacoes-do-projeto' },
+  { label: 'Sobre o portal', href: '/sobre' },
+  { label: 'Acessibilidade', href: '/acessibilidade' },
+  { label: 'Informações do projeto', href: '/informacoes-do-projeto' },
 ]
 
 export default function Footer() {
@@ -17,7 +17,7 @@ export default function Footer() {
       <div>
         <a
           className="flex w-max items-center gap-2.5 text-lg font-bold text-white focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#f2c94c]"
-          href="#inicio"
+          href="/"
           aria-label="AcessoLocal - início"
         >
           <span className="size-9 shrink-0" aria-hidden="true" />

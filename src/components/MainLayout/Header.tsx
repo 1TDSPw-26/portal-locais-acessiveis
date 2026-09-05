@@ -1,8 +1,8 @@
 const navigationItems = [
-  { label: 'Início', href: '#inicio', active: true },
-  { label: 'Locais', href: '#locais' },
-  { label: 'Sobre', href: '#sobre' },
-  { label: 'Acessibilidade', href: '#acessibilidade' },
+  { label: 'Início', href: '/', active: true },
+  { label: 'Locais', href: '/locais' },
+  { label: 'Sobre', href: '/sobre' },
+  { label: 'Acessibilidade', href: '/acessibilidade' },
 ]
 
 export default function Header() {
@@ -10,7 +10,7 @@ export default function Header() {
     <header className="grid min-h-[72px] grid-cols-[minmax(180px,1fr)_auto_minmax(180px,1fr)] items-center gap-8 border-t-4 border-t-[#202020] border-b border-b-[#d7e2f0] bg-white px-[clamp(24px,4vw,52px)] max-[820px]:grid-cols-[1fr_auto] max-[820px]:gap-x-6 max-[820px]:gap-y-3 max-[820px]:py-3.5 max-[520px]:grid-cols-1 max-[520px]:px-5">
       <a
         className="flex w-max items-center gap-2.5 text-lg font-bold text-[#1554a5] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#f2c94c]"
-        href="#inicio"
+        href="/"
         aria-label="AcessoLocal - início"
       >
         <span className="size-8 shrink-0" aria-hidden="true" />
@@ -39,7 +39,7 @@ export default function Header() {
 
       <a
         className="inline-flex min-h-10.5 items-center justify-center justify-self-end rounded-[7px] bg-[#1858ac] px-5.5 text-[13px] font-bold whitespace-nowrap text-white hover:bg-[#10488f] focus-visible:bg-[#10488f] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#f2c94c] max-[520px]:row-start-2 max-[520px]:justify-self-stretch"
-        href="#cadastrar-local"
+        href="/cadastrar-local"
       >
         Cadastrar local
       </a>
