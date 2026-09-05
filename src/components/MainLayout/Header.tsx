@@ -1,3 +1,5 @@
+import logo from '../../assets/logo.svg'
+
 const navigationItems = [
   { label: 'Início', href: '/', active: true },
   { label: 'Locais', href: '/locais' },
@@ -13,7 +15,7 @@ export default function Header() {
         href="/"
         aria-label="AcessoLocal - início"
       >
-        <span className="size-8 shrink-0" aria-hidden="true" />
+        <img className="size-8 shrink-0" src={logo} alt="" />
         <span>AcessoLocal</span>
       </a>
 
