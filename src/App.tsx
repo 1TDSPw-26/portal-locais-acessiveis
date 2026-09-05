@@ -1,10 +1,9 @@
-
+import MainLayout from './components/MainLayout/Main'
 
 export default function App() {
   return (
-    <div>
-      <h1>Portal Acessível Template</h1>
-    </div>
+    <MainLayout>
+      <></>
+    </MainLayout>
   )
 }
-
