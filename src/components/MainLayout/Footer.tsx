@@ -1,31 +1,26 @@
-import { Link } from 'react-router-dom'
 import footerLogo from '../../assets/logo-footer.svg'
 
 const footerNavigation = [
-  { label: 'Início', href: '/' },
-  { label: 'Locais', href: '/locais' },
-  { label: 'Cadastrar local', href: '/cadastro' },
-  { label: 'Sobre', href: '/sobre' },
+  'Início',
+  'Locais',
+  'Cadastrar local',
+  'Sobre',
 ]
 
 const projectLinks = [
-  { label: 'Sobre o portal', href: '/sobre' },
-  { label: 'Acessibilidade', href: '/acessibilidade' },
-  { label: 'Informações do projeto', href: '/informacoes-do-projeto' },
+  'Sobre o portal',
+  'Acessibilidade',
+  'Informações do projeto',
 ]
 
 export default function Footer() {
   return (
     <footer className="bg-brand-footer grid grid-cols-[minmax(250px,1.8fr)_repeat(3,minmax(150px,1fr))] gap-[clamp(40px,6vw,96px)] px-[clamp(32px,5vw,68px)] pt-11 pb-14.5 text-white max-[820px]:grid-cols-2 max-[520px]:grid-cols-1 max-[520px]:gap-8.5 max-[520px]:px-6 max-[520px]:pt-10 max-[520px]:pb-12">
       <div>
-        <Link
-          className="focus-visible:outline-focus flex w-max items-center gap-2.5 text-lg font-bold text-white focus-visible:outline-3 focus-visible:outline-offset-3"
-          to="/"
-          aria-label="AcessoLocal - início"
-        >
-          <img className="size-9 shrink-0" src={footerLogo} alt="" />
+        <div className="flex w-max items-center gap-2.5 text-lg font-bold text-white">
+          <img className="size-9 shrink-0" src={footerLogo} alt="Logo do AcessoLocal" />
           <span>AcessoLocal</span>
-        </Link>
+        </div>
         <p className="mt-3.5 max-w-80 text-xs leading-[1.55]">
           Portal colaborativo que reúne informações de acessibilidade para ampliar autonomia e
           participação.
@@ -51,7 +46,7 @@ export default function Footer() {
 
 type FooterLinksProps = {
   title: string
-  links: Array<{ label: string; href: string }>
+  links: string[]
 }
 
 function FooterLinks({ title, links }: FooterLinksProps) {
@@ -63,14 +58,9 @@ function FooterLinks({ title, links }: FooterLinksProps) {
         {title}
       </h2>
       <ul className="grid list-none gap-2.5 p-0">
-        {links.map(({ label, href }) => (
-          <li key={href}>
-            <Link
-              className="focus-visible:outline-focus text-xs text-white hover:underline hover:underline-offset-3 focus-visible:outline-3 focus-visible:outline-offset-3"
-              to={href}
-            >
-              {label}
-            </Link>
+        {links.map((label) => (
+          <li key={label}>
+            <span className="text-xs text-white">{label}</span>
           </li>
         ))}
       </ul>

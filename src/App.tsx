@@ -1,5 +1,9 @@
-import AppRoutes from './routes/AppRoutes'
+import MainLayout from './components/MainLayout/Main'
 
 export default function App() {
-  return <AppRoutes />
+  return (
+    <MainLayout>
+      <></>
+    </MainLayout>
+  )
 }
