@@ -1,4 +1,4 @@
-import logo from '../../assets/logo.svg'
+import footerLogo from '../../assets/logo-footer.svg'
 
 const footerNavigation = [
   { label: 'Início', href: '/' },
@@ -22,7 +22,7 @@ export default function Footer() {
           href="/"
           aria-label="AcessoLocal - início"
         >
-          <img className="size-9 shrink-0 brightness-0 invert" src={logo} alt="" />
+          <img className="size-9 shrink-0" src={footerLogo} alt="" />
           <span>AcessoLocal</span>
         </a>
         <p className="mt-3.5 max-w-80 text-xs leading-[1.55]">
