@@ -1,4 +1,7 @@
+import { Link } from 'react-router'
 import logo from '../../assets/logo.svg'
+
+
 
 const navigationItems = [
   { label: 'Início', active: true },
@@ -20,7 +23,7 @@ export default function Header() {
         aria-label="Navegação principal"
       >
         <ul className="flex h-full items-center gap-[inherit]">
-          {navigationItems.map(({ label, active }) => (
+          {/* {navigationItems.map(({ label, active }) => (
             <li className="h-full" key={label}>
               <span
                 className={`relative flex h-full items-center px-0.5 text-xs font-bold whitespace-nowrap max-[820px]:min-h-9 ${
@@ -31,10 +34,13 @@ export default function Header() {
                 }
                 aria-current={active ? 'page' : undefined}
               >
-                {label}
               </span>
             </li>
-          ))}
+          ))} */}
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/locais">Locais</Link></li>
+            <li><Link to="/cadastro">Cadastro</Link></li>
+            <li><Link to="/sobre">Sobre</Link></li>
         </ul>
       </nav>
 
