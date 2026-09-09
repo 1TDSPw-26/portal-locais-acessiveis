@@ -3,12 +3,12 @@ import logo from '../../assets/logo.svg'
 
 
 
-const navigationItems = [
-  { label: 'Início', active: true },
-  { label: 'Locais', active: false },
-  { label: 'Sobre', active: false },
-  { label: 'Acessibilidade', active: false },
-]
+// const navigationItems = [
+//   { label: 'Início', active: true },
+//   { label: 'Locais', active: false },
+//   { label: 'Sobre', active: false },
+//   { label: 'Acessibilidade', active: false },
+// ]
 
 export default function Header() {
   return (
