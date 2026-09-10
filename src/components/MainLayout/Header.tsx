@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import logo from '../../assets/logo.svg'
 
 
@@ -53,7 +53,7 @@ export default function Header() {
       </nav>
 
       <Link
-        to="/cadastrar"
+        to="/cadastro"
         className="bg-brand-action inline-flex min-h-10.5 items-center justify-center justify-self-end rounded-[7px] px-5.5 text-[13px] font-bold whitespace-nowrap text-white max-[520px]:row-start-2 max-[520px]:justify-self-stretch"
       >
         Cadastrar local
