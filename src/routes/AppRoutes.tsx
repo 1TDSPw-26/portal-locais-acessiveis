@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
+import NotFound from '../pages/NotFound/NotFound'
 import MainLayout from '../components/MainLayout/Main'
 import Cadastro from '../pages/Cadastro/Cadastro'
 import Home from '../pages/Home/Home'
@@ -15,6 +16,7 @@ export default function AppRoutes() {
         <Route path="cadastrar" element={<Cadastro />} />
         <Route path="sobre" element={<Sobre />} />
         <Route path="acessibilidade" element={<Acessibilidade />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )

@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 const footerNavigation = [
   { label: "Início", path: "/" },
   { label: "Locais", path: "/locais" },
-  { label: "Cadastrar local", path: "/cadastrar" },
+  { label: "Cadastrar local", path: "/cadastro" },
   { label: "Sobre", path: "/sobre" },
 ];
 
