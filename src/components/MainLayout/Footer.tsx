@@ -15,6 +15,12 @@ const projectLinks = [
 ];
 
 export default function Footer() {
+  const navigate = useNavigate()
+
+  const handleNavigation = (href: string) => {
+    navigate(href)
+  }
+
   return (
     <footer className="bg-brand-footer grid grid-cols-[minmax(250px,1.8fr)_repeat(3,minmax(150px,1fr))] gap-[clamp(40px,6vw,96px)] px-[clamp(32px,5vw,68px)] pt-11 pb-14.5 text-white max-[820px]:grid-cols-2 max-[520px]:grid-cols-1 max-[520px]:gap-8.5 max-[520px]:px-6 max-[520px]:pt-10 max-[520px]:pb-12">
       <div>
@@ -35,8 +41,8 @@ export default function Footer() {
         </p>
       </div>
 
-      <FooterLinks title="Navegação" links={footerNavigation} />
-      <FooterLinks title="Projeto" links={projectLinks} />
+      <FooterLinks title="Navegação" links={footerNavigation} onNavigate={handleNavigation} />
+      <FooterLinks title="Projeto" links={projectLinks} onNavigate={handleNavigation} />
 
       <section aria-labelledby="footer-institucional">
         <h2

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import logo from '../../assets/logo.svg'
+import { useNavigate } from 'react-router-dom'
 
 
 
@@ -11,6 +12,23 @@ import logo from '../../assets/logo.svg'
 // ]
 
 export default function Header() {
+  const navigate = useNavigate()
+
+  const handleCadastro = () => {
+    navigate('/cadastro')
+  }
+
+  const handleNavigation = (label: string) => {
+    const routes: Record<string, string> = {
+      'Início': '/',
+      'Locais': '/locais',
+      'Sobre': '/sobre',
+      'Acessibilidade': '/acessibilidade',
+    }
+    const route = routes[label]
+    if (route) navigate(route)
+  }
+
   return (
     <header className="grid min-h-[72px] grid-cols-[minmax(180px,1fr)_auto_minmax(180px,1fr)] items-center gap-8 border-t-4 border-t-header-edge border-b border-b-border-subtle bg-white px-[clamp(24px,4vw,52px)] max-[820px]:grid-cols-[1fr_auto] max-[820px]:gap-x-6 max-[820px]:gap-y-3 max-[820px]:py-3.5 max-[520px]:grid-cols-1 max-[520px]:px-5">
       <Link
