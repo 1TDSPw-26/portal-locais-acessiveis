@@ -1,12 +1,14 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link } from 'react-router'
 import logo from '../../assets/logo.svg'
 
-const navigationItems = [
-  { label: 'Início', path: '/' },
-  { label: 'Locais', path: '/locais' },
-  { label: 'Sobre', path: '/sobre' },
-  { label: 'Acessibilidade', path: '/acessibilidade' },
-]
+
+
+// const navigationItems = [
+//   { label: 'Início', active: true },
+//   { label: 'Locais', active: false },
+//   { label: 'Sobre', active: false },
+//   { label: 'Acessibilidade', active: false },
+// ]
 
 export default function Header() {
   return (
@@ -28,7 +30,7 @@ export default function Header() {
         aria-label="Navegação principal"
       >
         <ul className="flex h-full items-center gap-[inherit]">
-          {navigationItems.map(({ label, path }) => (
+          {/* {navigationItems.map(({ label, active }) => (
             <li className="h-full" key={label}>
               <NavLink
                 to={path}
@@ -40,10 +42,13 @@ export default function Header() {
                   }`
                 }
               >
-                {label}
-              </NavLink>
+              </span>
             </li>
-          ))}
+          ))} */}
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/locais">Locais</Link></li>
+            <li><Link to="/cadastro">Cadastro</Link></li>
+            <li><Link to="/sobre">Sobre</Link></li>
         </ul>
       </nav>
 
