@@ -403,7 +403,7 @@ jobs:
             O Pull Request deve possuir exatamente um vínculo no formato:
 
             \`\`\`text
-            Closes #NUMERO
+            Closes #18
             \`\`\`
 
             Corrija a descrição do Pull Request.`;
@@ -437,7 +437,7 @@ jobs:
               if (numbers.length !== 1) {
                 const reason =
                   numbers.length === 0
-                    ? "Nenhum `Closes #NUMERO` foi encontrado."
+                    ? "Nenhum `Closes #18` foi encontrado."
                     : "Mais de uma Issue foi vinculada usando `Closes`.";
 
                 await commentInvalidLink(
