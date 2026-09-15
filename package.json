@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "desenvolvimento": "vite",
     "build": "tsc -b && vite build",
+    "gerar-build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "verificar-lint": "oxlint",
+    "preview": "vite preview",
+    "visualizar": "vite preview"
   },
   "dependencies": {
     "react": "^19.2.8",
