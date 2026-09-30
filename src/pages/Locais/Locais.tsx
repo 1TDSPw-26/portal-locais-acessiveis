@@ -1,16 +1,13 @@
-import { useRef, useState } from 'react'
-import { locais } from '../LocalDetalhe/locaisMock'
-import LocalCard from './LocalCard'
+import { useEffect, useRef, useState } from 'react'
+import LocalCard from '../../components/LocalCard'
+import { buscarLocais } from '../../services/localService'
+import type { Local } from '../../types/types'
 
 const TODAS = 'todas'
-
-const categorias = [...new Set(locais.map((local) => local.categoria))].sort()
 
 const classeCampo =
   'border-border-subtle mt-1 min-h-11 w-full rounded-md border bg-white px-3 text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
-// Ignora maiúsculas e acentos: "biblioteca" encontra "Biblioteca" e
-// "servico" encontra "Serviço".
 function normalizar(texto: string) {
   return texto
     .normalize('NFD')
@@ -19,15 +16,43 @@ function normalizar(texto: string) {
 }
 
 function Locais() {
+  const [locais, setLocais] = useState<Local[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState(TODAS)
+
   const buscaRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    async function carregarLocais() {
+      try {
+        setCarregando(true)
+        setErro('')
+
+        const dados = await buscarLocais()
+
+        setLocais(dados)
+      } catch {
+        setErro('Não foi possível carregar os locais.')
+      } finally {
+        setCarregando(false)
+      }
+    }
+
+    carregarLocais()
+  }, [])
+
+  const categorias = [
+    ...new Set(locais.map((local) => local.categoria)),
+  ].sort()
+
   const termo = normalizar(busca.trim())
+
   const locaisFiltrados = locais.filter(
     (local) =>
       (categoria === TODAS || local.categoria === categoria) &&
-      normalizar(`${local.nome} ${local.endereco}`).includes(termo),
+      normalizar(`${local.nome} ${local.endereco ?? ''}`).includes(termo),
   )
 
   const filtroAtivo = termo !== '' || categoria !== TODAS
@@ -35,8 +60,25 @@ function Locais() {
   function limparFiltros() {
     setBusca('')
     setCategoria(TODAS)
-    // O botão some depois do clique; sem isso o foco do teclado se perderia.
     buscaRef.current?.focus()
+  }
+
+  if (carregando) {
+    return (
+      <section>
+        <h2>Locais</h2>
+        <p className="mt-4">Carregando locais...</p>
+      </section>
+    )
+  }
+
+  if (erro) {
+    return (
+      <section>
+        <h2>Locais</h2>
+        <p className="mt-4">{erro}</p>
+      </section>
+    )
   }
 
   return (
@@ -47,6 +89,7 @@ function Locais() {
       <h2 id="titulo-locais" className="text-2xl font-bold text-gray-900">
         Locais
       </h2>
+
       <p className="mt-2 text-gray-700">
         Conheça locais acessíveis e os recursos que cada um oferece.
       </p>
@@ -61,6 +104,7 @@ function Locais() {
           <label htmlFor="busca-local" className="font-bold text-gray-900">
             Buscar por nome ou endereço
           </label>
+
           <input
             id="busca-local"
             ref={buscaRef}
@@ -70,10 +114,12 @@ function Locais() {
             className={classeCampo}
           />
         </div>
+
         <div>
           <label htmlFor="categoria-local" className="font-bold text-gray-900">
             Categoria
           </label>
+
           <select
             id="categoria-local"
             value={categoria}
@@ -81,6 +127,7 @@ function Locais() {
             className={classeCampo}
           >
             <option value={TODAS}>Todas</option>
+
             {categorias.map((opcao) => (
               <option key={opcao} value={opcao}>
                 {opcao}
@@ -90,8 +137,6 @@ function Locais() {
         </div>
       </form>
 
-      {/* Região "viva": o leitor de tela anuncia a contagem a cada filtro,
-          sem tirar o foco do campo que a pessoa está usando. */}
       <p role="status" className="mt-4 text-gray-700">
         {locaisFiltrados.length === 1
           ? '1 local encontrado'
@@ -113,6 +158,7 @@ function Locais() {
               ? 'Nenhum local corresponde aos filtros escolhidos.'
               : 'Nenhum local cadastrado ainda.'}
           </p>
+
           {filtroAtivo && (
             <button
               type="button"
