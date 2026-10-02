@@ -1,10 +1,15 @@
 @import "tailwindcss";
 
-@theme {
+theme {
   --color-brand-primary: #1554a5;
   --color-brand-active: #1455ab;
   --color-brand-action: #1858ac;
   --color-brand-footer: #164382;
   --color-border-subtle: #d7e2f0;
   --color-header-edge: #202020;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand-primary);
+  outline-offset: 3px;
 }
