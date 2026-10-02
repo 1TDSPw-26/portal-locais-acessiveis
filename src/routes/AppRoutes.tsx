@@ -7,6 +7,7 @@ import Locais from '../pages/Locais/Locais'
 import Sobre from '../pages/Sobre/Sobre'
 import Acessibilidade from '../pages/Acessibilidade/Acessibilidade'
 import LocalDetalhe from '../pages/LocalDetalhe/LocalDetalhe'
+
 export default function AppRoutes() {
   return (
     <Routes>
