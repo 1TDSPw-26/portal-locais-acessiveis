@@ -3,7 +3,7 @@ import { locais } from '../LocalDetalhe/locaisMock'
 
 function Locais() {
   return (
-    <section>
+    <section className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
       <h2>Locais</h2>
       <p>Listagem de locais acessíveis.</p>
 
