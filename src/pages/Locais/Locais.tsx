@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import CartaoLocal from '../../components/LocalCard/LocalCard'
 import Paginacao from '../../components/Paginacao/Paginacao'
 import { locais } from '../../components/Dados/Locais'
@@ -19,15 +19,6 @@ function Locais() {
     indiceInicial,
     indiceInicial + ITENS_POR_PAGINA,
   )
-
-  useEffect(() => {
-    if (
-      paginaAtual > totalPaginas &&
-      totalPaginas > 0
-    ) {
-      setPaginaAtual(totalPaginas)
-    }
-  }, [paginaAtual, totalPaginas])
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-10">
