@@ -1,25 +1,30 @@
-import { Link } from 'react-router-dom'
 import { locais } from '../LocalDetalhe/locaisMock'
+import LocalCard from './LocalCard'
 
 function Locais() {
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-      <h2>Locais</h2>
-      <p>Listagem de locais acessíveis.</p>
+    <section
+      aria-labelledby="titulo-locais"
+      className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6"
+    >
+      <h2 id="titulo-locais" className="text-2xl font-bold text-gray-900">
+        Locais
+      </h2>
+      <p className="mt-2 text-gray-700">
+        Conheça locais acessíveis e os recursos que cada um oferece.
+      </p>
 
-      <ul className="mt-4 grid gap-3">
-        {locais.map((local) => (
-          <li key={local.id}>
-            <Link
-              to={`/locais/${local.id}`}
-              className="text-brand-primary rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              {local.nome}
-            </Link>
-            <span className="text-gray-700"> — {local.categoria}</span>
-          </li>
-        ))}
-      </ul>
+      {locais.length > 0 ? (
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {locais.map((local) => (
+            <li key={local.id}>
+              <LocalCard local={local} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-6 text-gray-700">Nenhum local cadastrado ainda.</p>
+      )}
     </section>
   )
 }
