@@ -9,9 +9,9 @@ const footerNavigation = [
 ];
 
 const projectLinks = [
-  { label: "Sobre", path: "/sobre" },
+  { label: "Sobre o projeto", path: "/sobre" },
   { label: "Acessibilidade", path: "/acessibilidade" },
-  { label: "Contato", path: "/" },
+  { label: "Enviar feedback", path: "/" },
 ];
 
 export default function Footer() {
