@@ -20,22 +20,15 @@ function Cadastro() {
         <div
           role="alert"
           aria-live="polite"
-          style={{
-            backgroundColor: '#d4edda',
-            color: '#155724',
-            padding: '12px',
-            borderRadius: '4px',
-            margin: '16px 0',
-            border: '1px solid #c3e6cb',
-          }}
+          className="mensagem-sucesso"
         >
-          ✅ Cadastro realizado com sucesso!
+          Cadastro realizado com sucesso!!
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
-        <div style={{ marginBottom: '12px' }}>
-          <label htmlFor="nomeLocal" style={{ display: 'block', marginBottom: '4px' }}>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="nomeLocal">
             Nome do Local:
           </label>
           <input
@@ -44,11 +37,10 @@ function Cadastro() {
             value={nomeLocal}
             onChange={(e) => setNomeLocal(e.target.value)}
             required
-            style={{ padding: '8px', width: '100%', maxWdt: '300px' }}
           />
         </div>
 
-        <button type="submit" style={{ padding: '8px 16px', cursor: 'pointer' }}>
+        <button type="submit">
           Confirmar Cadastro
         </button>
       </form>
