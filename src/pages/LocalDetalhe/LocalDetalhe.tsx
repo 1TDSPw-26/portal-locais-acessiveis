@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { buscarLocalPorId } from './locaisMock'
+import { buscarLocalPorId } from '../../services/locaisService'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
