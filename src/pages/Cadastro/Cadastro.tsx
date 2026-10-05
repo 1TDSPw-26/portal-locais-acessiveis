@@ -1,14 +1,22 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 
 function Cadastro() {
   const [sucesso, setSucesso] = useState(false);
   const [nomeLocal, setNomeLocal] = useState('');
+  const [localCadastrado, setLocalCadastrado] = useState('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (nomeLocal.trim()) {
-      setSucesso(true);
+
+    const nome = nomeLocal.trim();
+    if (!nome) {
+      return;
     }
+
+    setLocalCadastrado(nome);
+    setSucesso(true);
+    setNomeLocal('');
   };
 
   return (
@@ -17,32 +25,27 @@ function Cadastro() {
       <p>Página destinada ao cadastro de locais acessíveis.</p>
 
       {sucesso && (
-        <div
-          role="alert"
-          aria-live="polite"
-          className="mensagem-sucesso"
-        >
-          Cadastro realizado com sucesso!!
+        <div role="status" className="mensagem-sucesso">
+          Cadastro do local "{localCadastrado}" realizado com sucesso!
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="nomeLocal">
-            Nome do Local:
-          </label>
+          <label htmlFor="nomeLocal">Nome do local:</label>
           <input
             id="nomeLocal"
             type="text"
             value={nomeLocal}
-            onChange={(e) => setNomeLocal(e.target.value)}
+            onChange={(e) => {
+              setNomeLocal(e.target.value);
+              setSucesso(false);
+            }}
             required
           />
         </div>
 
-        <button type="submit">
-          Confirmar Cadastro
-        </button>
+        <button type="submit">Confirmar cadastro</button>
       </form>
     </section>
   );
