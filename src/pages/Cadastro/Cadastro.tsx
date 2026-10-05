@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import type { CadastroLocal } from "../../types/cadastroLocal";
+import RecursosAcessibilidade from "./RecursosAcessibilidade";
 
 const dadosIniciais: CadastroLocal = {
   nome: "",
@@ -25,6 +26,13 @@ export default function Cadastro() {
     setDados((dadosAtuais) => ({
       ...dadosAtuais,
       [campo]: valor,
+    }));
+  }
+
+  function atualizarRecursos(recursos: string[]) {
+    setDados((dadosAtuais) => ({
+      ...dadosAtuais,
+      recursos,
     }));
   }
 
@@ -120,7 +128,8 @@ export default function Cadastro() {
 
             <p id="ajuda-descricao" className="mb-2 text-sm text-gray-600">
               Conte o que o local oferece e quais atividades ou serviços estão
-              disponíveis.
+              disponíveis. Selecione os recursos de acessibilidade na seção
+              abaixo.
             </p>
 
             <textarea
@@ -137,6 +146,11 @@ export default function Cadastro() {
             />
           </div>
         </fieldset>
+
+        <RecursosAcessibilidade
+          recursosSelecionados={dados.recursos}
+          onChange={atualizarRecursos}
+        />
 
         <button
           type="submit"
