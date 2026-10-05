@@ -35,8 +35,8 @@ function possuiDadosValidos(valor: unknown): valor is DadosLocal {
     ehTextoPreenchido(valor.categoria) &&
     ehTextoPreenchido(valor.descricao) &&
     ehTextoPreenchido(valor.endereco) &&
-    Array.isArray(valor.accessibilidades) &&
-    valor.accessibilidades.every(ehTextoPreenchido)
+    Array.isArray(valor.acessibilidades) &&
+    valor.acessibilidades.every(ehTextoPreenchido)
   );
 }
 
@@ -92,7 +92,7 @@ function criarEstadoInicial(): ArmazenamentoLocais {
       ) + 1,
     locais: locaisIniciais.map((local) => ({
       ...local,
-      accessibilidades: [...local.acessibilidades],
+      acessibilidades: [...local.acessibilidades],
     })),
   };
 }
