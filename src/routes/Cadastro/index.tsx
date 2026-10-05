@@ -1,7 +1,5 @@
-export default function Cadastro(){
-    return(
-        <main>
-            <h2>Cadastro</h2>
-        </main>
-    );
-}
+import CadastroPage from '../../pages/Cadastro/Cadastro'
+
+export default function Cadastro() {
+  return <CadastroPage />
+} 
