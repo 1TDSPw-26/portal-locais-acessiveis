@@ -1,6 +1,11 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import type { CadastroLocal } from "../../types/cadastroLocal";
+import { validarCadastro } from "../../utils/validarCadastro";
+import type {
+  CampoObrigatorio,
+  ErrosCadastro,
+} from "../../utils/validarCadastro";
 import RecursosAcessibilidade from "./RecursosAcessibilidade";
 
 const dadosIniciais: CadastroLocal = {
@@ -11,33 +16,94 @@ const dadosIniciais: CadastroLocal = {
   recursos: [],
 };
 
+const ordemCampos: CampoObrigatorio[] = [
+  "nome",
+  "categoria",
+  "endereco",
+  "recursos",
+];
+
 export default function Cadastro() {
   const [dados, setDados] = useState<CadastroLocal>(dadosIniciais);
+  const [erros, setErros] = useState<ErrosCadastro>({});
+  const [tentouValidar, setTentouValidar] = useState(false);
+  const [mensagem, setMensagem] = useState("");
 
   const estiloCampo =
     "w-full rounded-lg border border-border-subtle p-3 " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 " +
-    "focus-visible:outline-brand-primary";
+    "focus-visible:outline-brand-primary " +
+    "aria-[invalid=true]:border-red-700";
 
   function atualizarCampo(
     campo: Exclude<keyof CadastroLocal, "recursos">,
     valor: string,
   ) {
-    setDados((dadosAtuais) => ({
-      ...dadosAtuais,
+    const novosDados: CadastroLocal = {
+      ...dados,
       [campo]: valor,
-    }));
+    };
+
+    setDados(novosDados);
+    setMensagem("");
+
+    if (tentouValidar) {
+      setErros(validarCadastro(novosDados));
+    }
   }
 
   function atualizarRecursos(recursos: string[]) {
-    setDados((dadosAtuais) => ({
-      ...dadosAtuais,
+    const novosDados: CadastroLocal = {
+      ...dados,
       recursos,
-    }));
+    };
+
+    setDados(novosDados);
+    setMensagem("");
+
+    if (tentouValidar) {
+      setErros(validarCadastro(novosDados));
+    }
   }
 
-  function impedirEnvio(event: FormEvent<HTMLFormElement>) {
+  function verificarCadastro(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const formulario = event.currentTarget;
+    const novosErros = validarCadastro(dados);
+
+    setErros(novosErros);
+    setTentouValidar(true);
+
+    const primeiroCampoInvalido = ordemCampos.find(
+      (campo) => novosErros[campo] !== undefined,
+    );
+
+    if (primeiroCampoInvalido) {
+      setMensagem(
+        "Preencha nome, categoria e endereço e selecione pelo menos um recurso de acessibilidade. Campos contendo apenas espaços não são aceitos.",
+      );
+
+      if (primeiroCampoInvalido === "recursos") {
+        const primeiraOpcao = formulario.querySelector<HTMLInputElement>(
+          'input[name="recursos"]',
+        );
+
+        primeiraOpcao?.focus();
+      } else {
+        const campo = formulario.elements.namedItem(primeiroCampoInvalido);
+
+        if (campo instanceof HTMLInputElement) {
+          campo.focus();
+        }
+      }
+
+      return;
+    }
+
+    setMensagem(
+      "Os campos obrigatórios estão preenchidos e há pelo menos um recurso selecionado. Nenhum cadastro foi enviado.",
+    );
   }
 
   return (
@@ -57,11 +123,12 @@ export default function Cadastro() {
       </p>
 
       <p id="aviso-cadastro" className="mt-3 text-sm text-gray-600">
-        O envio do cadastro ainda não está disponível.
+        Você pode verificar o preenchimento. O envio do cadastro ainda não está
+        disponível.
       </p>
 
       <form
-        onSubmit={impedirEnvio}
+        onSubmit={verificarCadastro}
         noValidate
         aria-describedby="aviso-cadastro"
         className="mt-6 space-y-6"
@@ -73,39 +140,43 @@ export default function Cadastro() {
 
           <div>
             <label htmlFor="nome" className="mb-1 block font-medium">
-              Nome do local
+              Nome do local (obrigatório)
             </label>
 
             <input
               id="nome"
               name="nome"
               type="text"
+              required
               value={dados.nome}
               onChange={(event) => atualizarCampo("nome", event.target.value)}
+              aria-invalid={erros.nome ? true : undefined}
               className={estiloCampo}
             />
           </div>
 
           <div>
             <label htmlFor="categoria" className="mb-1 block font-medium">
-              Categoria
+              Categoria (obrigatória)
             </label>
 
             <input
               id="categoria"
               name="categoria"
               type="text"
+              required
               value={dados.categoria}
               onChange={(event) =>
                 atualizarCampo("categoria", event.target.value)
               }
+              aria-invalid={erros.categoria ? true : undefined}
               className={estiloCampo}
             />
           </div>
 
           <div>
             <label htmlFor="endereco" className="mb-1 block font-medium">
-              Endereço
+              Endereço (obrigatório)
             </label>
 
             <input
@@ -113,17 +184,19 @@ export default function Cadastro() {
               name="endereco"
               type="text"
               autoComplete="street-address"
+              required
               value={dados.endereco}
               onChange={(event) =>
                 atualizarCampo("endereco", event.target.value)
               }
+              aria-invalid={erros.endereco ? true : undefined}
               className={estiloCampo}
             />
           </div>
 
           <div>
             <label htmlFor="descricao" className="mb-1 block font-medium">
-              Descrição do local
+              Descrição do local (opcional)
             </label>
 
             <p id="ajuda-descricao" className="mb-2 text-sm text-gray-600">
@@ -150,15 +223,21 @@ export default function Cadastro() {
         <RecursosAcessibilidade
           recursosSelecionados={dados.recursos}
           onChange={atualizarRecursos}
+          invalido={Boolean(erros.recursos)}
         />
+
+        <p role="status" aria-atomic="true" className="text-sm text-gray-700">
+          {mensagem}
+        </p>
 
         <button
           type="submit"
-          disabled
           className="rounded-lg bg-brand-primary px-5 py-3 font-semibold
-                     text-white disabled:cursor-not-allowed disabled:opacity-60"
+                     text-white hover:bg-brand-footer
+                     focus-visible:outline-2 focus-visible:outline-offset-2
+                     focus-visible:outline-brand-primary"
         >
-          Cadastrar local
+          Verificar preenchimento
         </button>
       </form>
     </section>
