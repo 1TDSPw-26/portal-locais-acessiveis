@@ -30,24 +30,29 @@ function Locais() {
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
   const categorias = [...new Set(locais.map((local) => local.categoria))].sort()
+  const buscaNormalizada = normalizar(busca.trim())
+  const locaisFiltrados = locais.filter((local) => {
+    const correspondeBusca =
+      buscaNormalizada.length === 0 ||
+      normalizar(
+        `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
+      ).includes(buscaNormalizada)
+    const correspondeCategoria =
+      categoria === TODAS || local.categoria === categoria
 
-  const totalPaginas = Math.ceil(
-    locais.length / ITENS_POR_PAGINA,
-  )
+    return correspondeBusca && correspondeCategoria
+  })
+  const filtroAtivo = busca.trim().length > 0 || categoria !== TODAS
 
-  const indiceInicial =
-    (paginaAtual - 1) * ITENS_POR_PAGINA
-
-  const locaisPaginados = locais.slice(
-    indiceInicial,
-    indiceInicial + ITENS_POR_PAGINA,
-  )
-
-  // O botão que abriu o diálogo deixa de existir após a exclusão,
-  // então o foco é levado ao título da página para não se perder.
   useEffect(() => {
     if (aviso) tituloRef.current?.focus()
   }, [aviso])
+
+  function limparFiltros() {
+    setBusca('')
+    setCategoria(TODAS)
+    buscaRef.current?.focus()
+  }
 
   function confirmarExclusao() {
     if (!localParaExcluir) return
@@ -106,10 +111,18 @@ function Locais() {
         onSubmit={(evento) => evento.preventDefault()}
         className="mt-6 grid gap-4 sm:grid-cols-[2fr_1fr]"
       >
-        {locaisPaginados.map((local) => (
-          <CartaoLocal
-            key={local.id}
-            local={local}
+        <div>
+          <label htmlFor="busca-local" className="font-bold text-gray-900">
+            Buscar local
+          </label>
+          <input
+            ref={buscaRef}
+            id="busca-local"
+            type="search"
+            value={busca}
+            onChange={(evento) => setBusca(evento.target.value)}
+            placeholder="Nome, categoria ou endereço"
+            className={classeCampo}
           />
         </div>
         <div>
@@ -132,8 +145,6 @@ function Locais() {
         </div>
       </form>
 
-      {/* Região "viva": o leitor de tela anuncia a contagem a cada filtro,
-          sem tirar o foco do campo que a pessoa está usando. */}
       <p role="status" className="mt-4 text-gray-700">
         {locaisFiltrados.length === 1
           ? '1 local encontrado'
