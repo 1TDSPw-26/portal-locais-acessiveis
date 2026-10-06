@@ -1,8 +1,8 @@
 
-import type { Locais } from '../../types/Locais';
+import type { Local } from '../../types/Local';
 
 type LocalCardProps = {
-  local: Locais;
+  local: Local;
 };
 
 export default function LocalCard({ local }: LocalCardProps) {
