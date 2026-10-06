@@ -4,14 +4,14 @@ import { Link, NavLink } from "react-router-dom";
 const footerNavigation = [
   { label: "Início", path: "/" },
   { label: "Locais", path: "/locais" },
-  { label: "Cadastrar local", path: "/cadastro" },
+  { label: "Cadastrar local", path: "/cadastrar" },
   { label: "Sobre", path: "/sobre" },
 ];
 
 const projectLinks = [
-  { label: "Sobre o portal", path: "/*" },
+  { label: "Sobre o projeto", path: "/sobre" },
   { label: "Acessibilidade", path: "/acessibilidade" },
-  { label: "Informações do projeto", path: "/*" },
+  { label: "Enviar feedback", path: "/" },
 ];
 
 export default function Footer() {
