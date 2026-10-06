@@ -1,6 +1,7 @@
 import footerLogo from "../../assets/logo-footer.svg";
 import { Link, NavLink } from "react-router-dom";
 
+// Links da seção de navegação principal do Footer
 const footerNavigation = [
   { label: "Início", path: "/" },
   { label: "Locais", path: "/locais" },
@@ -8,6 +9,7 @@ const footerNavigation = [
   { label: "Sobre", path: "/sobre" },
 ];
 
+// Links da seção de projeto e informações
 const projectLinks = [
   { label: "Sobre o projeto", path: "/sobre" },
   { label: "Acessibilidade", path: "/acessibilidade" },
