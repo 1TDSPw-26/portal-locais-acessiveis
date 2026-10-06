@@ -9,8 +9,6 @@ const TODAS = 'todas'
 const classeCampo =
   'border-border-subtle mt-1 min-h-11 w-full rounded-md border bg-white px-3 text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
-// Ignora maiúsculas e acentos: "biblioteca" encontra "Biblioteca" e
-// "servico" encontra "Serviço".
 function normalizar(texto: string) {
   return texto
     .normalize('NFD')
@@ -18,7 +16,10 @@ function normalizar(texto: string) {
     .toLowerCase()
 }
 
-type Aviso = { tipo: 'sucesso' | 'erro'; texto: string }
+type Aviso = {
+  tipo: 'sucesso' | 'erro'
+  texto: string
+}
 
 function Locais() {
   const [locais, setLocais] = useState<Local[]>(() => listarLocais())
@@ -26,26 +27,38 @@ function Locais() {
   const [categoria, setCategoria] = useState(TODAS)
   const [localParaExcluir, setLocalParaExcluir] = useState<Local | null>(null)
   const [aviso, setAviso] = useState<Aviso | null>(null)
+
   const buscaRef = useRef<HTMLInputElement>(null)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
-  const categorias = [...new Set(locais.map((local) => local.categoria))].sort()
+  const categorias = [
+    ...new Set(locais.map((local) => local.categoria)),
+  ].sort()
+
   const buscaNormalizada = normalizar(busca.trim())
+
   const locaisFiltrados = locais.filter((local) => {
+    const textoLocal = normalizar(
+      `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
+    )
+
     const correspondeBusca =
       buscaNormalizada.length === 0 ||
-      normalizar(
-        `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
-      ).includes(buscaNormalizada)
+      textoLocal.includes(buscaNormalizada)
+
     const correspondeCategoria =
       categoria === TODAS || local.categoria === categoria
 
     return correspondeBusca && correspondeCategoria
   })
-  const filtroAtivo = busca.trim().length > 0 || categoria !== TODAS
+
+  const filtroAtivo =
+    busca.trim().length > 0 || categoria !== TODAS
 
   useEffect(() => {
-    if (aviso) tituloRef.current?.focus()
+    if (aviso) {
+      tituloRef.current?.focus()
+    }
   }, [aviso])
 
   function limparFiltros() {
@@ -59,6 +72,7 @@ function Locais() {
 
     try {
       const removido = excluirLocal(localParaExcluir.id)
+
       setAviso({
         tipo: 'sucesso',
         texto: `Local "${removido.nome}" excluído com sucesso.`,
@@ -87,6 +101,7 @@ function Locais() {
       >
         Locais
       </h2>
+
       <p className="mt-2 text-gray-700">
         Conheça locais acessíveis e os recursos que cada um oferece.
       </p>
@@ -115,6 +130,7 @@ function Locais() {
           <label htmlFor="busca-local" className="font-bold text-gray-900">
             Buscar local
           </label>
+
           <input
             ref={buscaRef}
             id="busca-local"
@@ -125,10 +141,12 @@ function Locais() {
             className={classeCampo}
           />
         </div>
+
         <div>
           <label htmlFor="categoria-local" className="font-bold text-gray-900">
             Categoria
           </label>
+
           <select
             id="categoria-local"
             value={categoria}
@@ -136,6 +154,7 @@ function Locais() {
             className={classeCampo}
           >
             <option value={TODAS}>Todas</option>
+
             {categorias.map((opcao) => (
               <option key={opcao} value={opcao}>
                 {opcao}
@@ -169,6 +188,7 @@ function Locais() {
               ? 'Nenhum local corresponde aos filtros escolhidos.'
               : 'Nenhum local cadastrado ainda.'}
           </p>
+
           {filtroAtivo && (
             <button
               type="button"
