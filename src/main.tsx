@@ -6,7 +6,7 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import Home from './routes/Home/index.tsx'
-import Locais from './routes/Locais/index.tsx'
+import Locais from './pages/Locais/Locais'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
