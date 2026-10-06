@@ -26,7 +26,7 @@ export default function Paginacao({
   return (
     <nav
       aria-label="Paginação dos locais"
-      className="flex flex-wrap items-center justify-center gap-2"
+      className="mt-8 flex flex-wrap items-center justify-center gap-2"
     >
       <button
         type="button"
