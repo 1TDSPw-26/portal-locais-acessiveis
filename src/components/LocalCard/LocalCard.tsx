@@ -1,13 +1,13 @@
 
-import type { Locais } from '../../types/Locais';
+import type { Local } from '../../types/Local';
 
 type LocalCardProps = {
-  local: Locais;
+  local: Local;
 };
 
 export default function LocalCard({ local }: LocalCardProps) {
-    return(
-         <article className="rounded-lg border border-border-subtle p-5">
+  return (
+    <article className="rounded-lg border border-border-subtle p-5">
       <h3 className="text-lg font-bold">
         {local.nome}
       </h3>
@@ -21,7 +21,7 @@ export default function LocalCard({ local }: LocalCardProps) {
       </p>
 
       <ul className="mt-3 list-disc pl-5 text-sm">
-        {local.accessibilidades.map((item) => (
+        {local.acessibilidades.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
