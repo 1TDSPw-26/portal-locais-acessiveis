@@ -8,3 +8,8 @@
   --color-border-subtle: #d7e2f0;
   --color-header-edge: #202020;
 }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
