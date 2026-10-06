@@ -5,15 +5,29 @@ function Detalhe() {
 
   return (
     <section>
-      <Link to="/locais">
-        Voltar para locais
-      </Link>
+      <nav aria-label="Breadcrumb">
+        <ol>
+          <li>
+            <Link to="/">Início</Link>
+          </li>
+
+          <li aria-hidden="true">/</li>
+
+          <li>
+            <Link to="/locais">Locais</Link>
+          </li>
+
+          <li aria-hidden="true">/</li>
+
+          <li aria-current="page">
+            Detalhes do local
+          </li>
+        </ol>
+      </nav>
 
       <h2>Detalhes do local</h2>
 
-      <p>
-        Você está visualizando o local {id}.
-      </p>
+      <p>Você está visualizando o local {id}.</p>
     </section>
   )
 }
