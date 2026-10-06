@@ -4,6 +4,6 @@ export type Local = {
   nome: string;
   descricao: string;
   endereco: string;
-  accessibilidades: string[]
+  acessibilidades: string[]
 };
 export type NovoLocal = Omit<Local, 'id'>;
