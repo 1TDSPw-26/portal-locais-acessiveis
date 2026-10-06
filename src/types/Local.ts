@@ -6,4 +6,5 @@ export type Local = {
   descricao: string;
   endereco: string;
   accessibilidades: string[]
-}
+};
+export type NovoLocal = Omit<Local, 'id'>;
