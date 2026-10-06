@@ -6,11 +6,11 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import Home from './routes/Home/index.tsx'
-import Locais from './pages/Locais/Locais'
+import Locais from './pages/Locais/Locais.tsx'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
-import Detalhe from './pages/Locais/Detalhe.tsx'
+import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
 
 const router = createBrowserRouter([
   {
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/locais/:id',
-        element: <Detalhe />,
+        element: <LocalDetalhe />,
       },
       {
         path: '/cadastro',

@@ -7,6 +7,7 @@ import Locais from '../pages/Locais/Locais'
 import Detalhe from '../pages/Locais/Detalhe'
 import Sobre from '../pages/Sobre/Sobre'
 import Acessibilidade from '../pages/Acessibilidade/Acessibilidade'
+import LocalDetalhe from '../pages/LocalDetalhe/LocalDetalhe'
 
 export default function AppRoutes() {
   return (
@@ -14,7 +15,7 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="locais" element={<Locais />} />
-        <Route path="locais/:id" element={<Detalhe />}/>
+        <Route path="locais/:id" element={<LocalDetalhe />} />
         <Route path="cadastrar" element={<Cadastro />} />
         <Route path="sobre" element={<Sobre />} />
         <Route path="acessibilidade" element={<Acessibilidade />} />
