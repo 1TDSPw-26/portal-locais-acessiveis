@@ -1,46 +1,64 @@
-import { Link } from "react-router-dom"
-import type { Local } from "../types/types"
+import { Link } from 'react-router-dom'
+import type { Local } from '../types/types'
 
 interface LocalCardProps {
   local: Local
 }
 
 function LocalCard({ local }: LocalCardProps) {
+  const tituloId = `local-${local.id}-titulo`
+
   return (
-    <article className="rounded-card border border-borderColor bg-bgSecondary p-6">
+    <article
+      aria-labelledby={tituloId}
+      className="border-border-subtle flex h-full flex-col rounded-md border bg-white p-4 sm:p-5"
+    >
       {local.imagem && (
         <img
           src={local.imagem}
-          alt={local.nome}
-          className="mb-4 h-48 w-full rounded-card object-cover"
+          alt=""
+          className="mb-4 h-48 w-full rounded-md object-cover"
         />
       )}
 
-      <h3 className="text-xl font-bold">
+      <p className="text-sm font-bold text-gray-700">
+        {local.categoria}
+      </p>
+
+      <h3
+        id={tituloId}
+        className="mt-1 wrap-break-word text-lg font-bold text-gray-900"
+      >
         {local.nome}
       </h3>
 
-      <p className="mt-2 text-sm">
-        Categoria: {local.categoria}
-      </p>
-
       {local.endereco && (
-        <p className="mt-2 text-sm">
-          Localização: {local.endereco}
+        <p className="mt-2 wrap-break-word text-gray-700">
+          {local.endereco}
         </p>
       )}
 
       {local.acessibilidade && (
-        <p className="mt-2 text-sm">
-          Acessibilidade: {local.acessibilidade}
-        </p>
+        <div className="mt-3">
+          <p className="text-sm font-bold text-gray-700">
+            Acessibilidade
+          </p>
+
+          <p className="mt-1 wrap-break-word text-gray-700">
+            {local.acessibilidade}
+          </p>
+        </div>
       )}
 
       <Link
         to={`/locais/${local.id}`}
-        className="btn-primary mt-4 inline-block"
+        aria-label={`Ver detalhes de ${local.nome}`}
+        className="text-brand-primary mt-auto inline-flex min-h-11 items-center rounded-sm pt-4 font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
       >
         Ver detalhes
+        <span aria-hidden="true" className="ml-2">
+          →
+        </span>
       </Link>
     </article>
   )
