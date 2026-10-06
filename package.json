@@ -3,11 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+ "scripts": {
+  "dev": "vite",
+  "api": "json-server db.json --port 8080",
+  "build": "tsc -b && vite build",
+  "lint": "oxlint",
+  "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.2.8",

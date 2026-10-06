@@ -1,0 +1,28 @@
+{
+  "locais": [
+    {
+      "id": 1,
+      "nome": "Biblioteca Municipal",
+      "categoria": "Biblioteca",
+      "endereco": "Rua das Flores, 100 - Centro",
+      "imagem": "",
+      "acessibilidade": "Entrada acessível, banheiro acessível e piso tátil."
+    },
+    {
+      "id": 2,
+      "nome": "Centro Cultural",
+      "categoria": "Cultura",
+      "endereco": "Avenida Central, 250 - Centro",
+      "imagem": "",
+      "acessibilidade": "Rampa de acesso, elevador e espaço reservado para cadeirantes."
+    },
+    {
+      "id": 3,
+      "nome": "Parque Municipal",
+      "categoria": "Lazer",
+      "endereco": "Rua do Parque, 50 - Jardim",
+      "imagem": "",
+      "acessibilidade": "Rota acessível, banheiros adaptados e vagas reservadas."
+    }
+  ]
+}
