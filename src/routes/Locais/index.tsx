@@ -1,7 +1,3 @@
-export default function Locais(){
-    return(
-        <main>
-            <h2>Locais</h2>
-        </main>
-    );
-}
+import Locais from '../../pages/Locais/Locais'
+
+export default Locais

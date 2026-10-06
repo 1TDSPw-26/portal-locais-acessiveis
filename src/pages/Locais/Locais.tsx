@@ -31,21 +31,17 @@ function Locais() {
 
   const categorias = [...new Set(locais.map((local) => local.categoria))].sort()
 
-  const termo = normalizar(busca.trim())
-  const locaisFiltrados = locais.filter(
-    (local) =>
-      (categoria === TODAS || local.categoria === categoria) &&
-      normalizar(`${local.nome} ${local.endereco}`).includes(termo),
+  const totalPaginas = Math.ceil(
+    locais.length / ITENS_POR_PAGINA,
   )
 
-  const filtroAtivo = termo !== '' || categoria !== TODAS
+  const indiceInicial =
+    (paginaAtual - 1) * ITENS_POR_PAGINA
 
-  function limparFiltros() {
-    setBusca('')
-    setCategoria(TODAS)
-    // O botão some depois do clique; sem isso o foco do teclado se perderia.
-    buscaRef.current?.focus()
-  }
+  const locaisPaginados = locais.slice(
+    indiceInicial,
+    indiceInicial + ITENS_POR_PAGINA,
+  )
 
   // O botão que abriu o diálogo deixa de existir após a exclusão,
   // então o foco é levado ao título da página para não se perder.
@@ -110,17 +106,10 @@ function Locais() {
         onSubmit={(evento) => evento.preventDefault()}
         className="mt-6 grid gap-4 sm:grid-cols-[2fr_1fr]"
       >
-        <div>
-          <label htmlFor="busca-local" className="font-bold text-gray-900">
-            Buscar por nome ou endereço
-          </label>
-          <input
-            id="busca-local"
-            ref={buscaRef}
-            type="search"
-            value={busca}
-            onChange={(evento) => setBusca(evento.target.value)}
-            className={classeCampo}
+        {locaisPaginados.map((local) => (
+          <CartaoLocal
+            key={local.id}
+            local={local}
           />
         </div>
         <div>
