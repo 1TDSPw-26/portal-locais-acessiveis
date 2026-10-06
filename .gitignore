@@ -24,3 +24,6 @@ pnpm
 *.njsproj
 *.sln
 *.sw?
+
+/playwright-report/
+/test-results/
