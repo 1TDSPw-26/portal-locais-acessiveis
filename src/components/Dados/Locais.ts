@@ -3,6 +3,7 @@ import type { Locais } from '../../types/Locais';
 export const locais: Locais[] = [
   {
     id: 1,
+    categoria: 'Educação',
     nome: 'Biblioteca Municipal',
     descricao: 'Biblioteca municipal com ampla coleção de livros e recursos digitais.',
     endereco: 'Centro - São Paulo/SP',
@@ -10,6 +11,7 @@ export const locais: Locais[] = [
   },
   {
     id: 2,
+    categoria: 'Cultura',
     nome: 'Centro Cultural',
     descricao: 'Centro cultural com espaços para exposições e atividades artísticas.',
     endereco: 'Santo André/SP',
@@ -17,6 +19,7 @@ export const locais: Locais[] = [
   },
   {
   id: 3,
+    categoria: 'Cultura',
   nome: 'Estação Cultural',
   descricao: 'Estação cultural com espaços para exposições e atividades artísticas.',
   endereco: 'Mooca - São Paulo/SP',
@@ -24,6 +27,7 @@ export const locais: Locais[] = [
 },
 {
   id: 4,
+    categoria: 'Lazer',
   nome: 'Parque Municipal',
   descricao: 'Parque municipal com áreas de lazer e atividades recreativas.',
   endereco: 'São Bernardo do Campo/SP',
@@ -31,6 +35,7 @@ export const locais: Locais[] = [
 },
 {
   id: 5,
+    categoria: 'Esporte',
   nome: 'Centro Esportivo Municipal',
   descricao: 'Centro esportivo municipal com instalações para prática de esportes.',
   endereco: 'Mauá/SP',
@@ -38,6 +43,7 @@ export const locais: Locais[] = [
 },
 {
   id: 6,
+    categoria: 'Cultura',
   nome: 'Museu Histórico',
   descricao: 'Museu histórico com coleção de objetos e exposições.',
   endereco: 'Santo André/SP',
@@ -45,6 +51,7 @@ export const locais: Locais[] = [
 },
 {
   id: 7,
+    categoria: 'Serviço público',
   nome: 'Centro de Atendimento ao Cidadão',
   descricao: 'Espaço público para atendimento e orientação aos moradores da região.',
   endereco: 'Centro - São Caetano do Sul/SP',
@@ -54,6 +61,7 @@ export const locais: Locais[] = [
 
 {
   id: 8,
+    categoria: 'Lazer',
   nome: 'Centro de Convivência da Terceira Idade',
   descricao: 'Espaço destinado à convivência, atividades recreativas e oficinas para a terceira idade.',
   endereco: 'Centro - Ribeirão Pires/SP',
@@ -63,6 +71,7 @@ export const locais: Locais[] = [
 
 {
   id: 9,
+    categoria: 'Cultura',
   nome: 'Espaço Cultural do ABC',
   descricao: 'Espaço cultural voltado para apresentações, oficinas e atividades comunitárias.',
   endereco: 'Centro - Diadema/SP',
@@ -72,6 +81,7 @@ export const locais: Locais[] = [
 
 {
   id: 10,
+    categoria: 'Esporte',
   nome: 'Complexo Esportivo Regional',
   descricao: 'Complexo esportivo com quadras e áreas destinadas à prática de atividades físicas.',
   endereco: 'Centro - Rio Grande da Serra/SP',
@@ -81,6 +91,7 @@ export const locais: Locais[] = [
 
 {
   id: 11,
+    categoria: 'Educação',
   nome: 'Biblioteca Comunitária do ABC',
   descricao: 'Biblioteca com acervo físico e digital para estudos, pesquisa e leitura.',
   endereco: 'Ipiranga - São Paulo/SP',
@@ -90,6 +101,7 @@ export const locais: Locais[] = [
 
 {
   id: 12,
+    categoria: 'Cultura',
   nome: 'Centro de Artes e Cultura',
   descricao: 'Centro dedicado a atividades artísticas, exposições e eventos culturais.',
   endereco: 'Santo Amaro - São Paulo/SP',
@@ -99,6 +111,7 @@ export const locais: Locais[] = [
 
 {
   id: 13,
+    categoria: 'Lazer',
   nome: 'Parque de Lazer Municipal',
   descricao: 'Área pública para lazer, caminhadas e atividades recreativas ao ar livre.',
   endereco: 'São Mateus - São Paulo/SP',
@@ -108,6 +121,7 @@ export const locais: Locais[] = [
 
 {
   id: 14,
+    categoria: 'Educação',
   nome: 'Centro Educacional Comunitário',
   descricao: 'Espaço voltado para cursos, oficinas e atividades educacionais para a comunidade.',
   endereco: 'Centro - Mauá/SP',
@@ -117,6 +131,7 @@ export const locais: Locais[] = [
 
 {
   id: 15,
+    categoria: 'Cultura',
   nome: 'Museu da Memória Regional',
   descricao: 'Espaço cultural com exposições sobre a história e a memória da região.',
   endereco: 'Centro - São Bernardo do Campo/SP',
@@ -126,6 +141,7 @@ export const locais: Locais[] = [
 
 {
   id: 16,
+    categoria: 'Serviço público',
   nome: 'Centro de Serviços Públicos',
   descricao: 'Espaço para atendimento de serviços públicos e orientação à população.',
   endereco: 'Centro - Santo André/SP',
@@ -135,6 +151,7 @@ export const locais: Locais[] = [
 
 {
   id: 17,
+    categoria: 'Educação',
   nome: 'Espaço de Inclusão Social',
   descricao: 'Centro comunitário dedicado a atividades sociais, educativas e de inclusão.',
   endereco: 'Lapa - São Paulo/SP',
@@ -144,6 +161,7 @@ export const locais: Locais[] = [
 
 {
   id: 18,
+    categoria: 'Esporte',
   nome: 'Centro Recreativo Municipal',
   descricao: 'Espaço destinado a atividades esportivas, recreativas e de convivência.',
   endereco: 'Centro - Ribeirão Pires/SP',
