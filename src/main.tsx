@@ -11,6 +11,7 @@ import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
 import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
+import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: '/sobre',
         element: <Sobre />,
+      },
+      {
+        path: '/acessibilidade',
+        element: <Acessibilidade />,
       },
       {
         path: '/*',
