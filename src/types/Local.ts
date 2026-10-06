@@ -1,5 +1,5 @@
 
-export type Locais = {
+export type Local = {
   id: number;
   nome: string;
   descricao: string;

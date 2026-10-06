@@ -1,6 +1,6 @@
-import type { Locais } from '../../types/Locais';
+import type { Local } from '../../types/Local';
 
-export const locais: Locais[] = [
+export const locais: Local[] = [
   {
     id: 1,
     nome: 'Biblioteca Municipal',
