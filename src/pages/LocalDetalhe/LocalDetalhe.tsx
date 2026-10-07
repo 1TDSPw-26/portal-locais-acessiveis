@@ -1,29 +1,57 @@
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { buscarLocalPorId } from './locaisMock'
+import { useLocalDetalhe } from '../../hooks/useLocalDetalhe'
+import Loading from '../../components/Loading/Loading'
+import EstadoErro from '../../components/EstadoErro/EstadoErro'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
 export default function LocalDetalhe() {
   const { id } = useParams()
-  const local = id ? buscarLocalPorId(id) : undefined
+  const { dado: local, carregando, erro, recarregar } = useLocalDetalhe(id)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
     const tituloAnterior = document.title
     document.title = local
       ? `${local.nome} | AcessoLocal`
-      : 'Local não encontrado | AcessoLocal'
+      : carregando
+        ? 'Carregando... | AcessoLocal'
+        : 'Local não encontrado | AcessoLocal'
 
-    // Em SPA o leitor de tela não anuncia a troca de rota:
-    // levar o foco ao título faz a nova página ser lida.
-    tituloRef.current?.focus()
+    if (!carregando) {
+      tituloRef.current?.focus()
+    }
 
     return () => {
       document.title = tituloAnterior
     }
-  }, [local])
+  }, [local, carregando])
+
+  if (carregando) {
+    return (
+      <section className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+        <Loading mensagem="Carregando detalhes do local..." />
+      </section>
+    )
+  }
+
+  if (erro) {
+    return (
+      <section className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+        <EstadoErro
+          titulo="Erro ao carregar detalhes"
+          mensagem={erro}
+          aoTentarNovamente={recarregar}
+        />
+        <Link to="/locais" className={classeLink}>
+          <span aria-hidden="true">←</span>
+          Voltar para a lista de locais
+        </Link>
+      </section>
+    )
+  }
 
   if (!local) {
     return (
