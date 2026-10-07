@@ -1,224 +1,114 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { campos, validarCadastro } from './validacao'
+import type { Campo, DadosCadastro, ErrosCadastro } from './validacao'
 import { cadastrarLocal } from '../../services/locaisService'
-import type { NovoLocal } from '../../services/locaisService'
 
-const RECURSOS_ACESSIBILIDADE = [
-  'Acesso para cadeirantes',
-  'Rampas de acesso',
-  'Elevador',
-  'Piso tátil',
-  'Banheiro acessível',
-  'Vagas acessíveis',
-  'Audiodescrição',
-]
-
-const dadosIniciais: NovoLocal = {
-  nome: '',
-  descricao: '',
-  endereco: '',
-  accessibilidades: [],
-}
-
-type Resultado =
-  | { tipo: 'sucesso'; mensagem: string }
-  | { tipo: 'erro'; mensagem: string }
-  | null
-
-const estiloCampo =
-  'w-full rounded-lg border border-border-subtle p-3 ' +
-  'focus-visible:outline-2 focus-visible:outline-offset-2 ' +
-  'focus-visible:outline-brand-primary'
+const dadosIniciais: DadosCadastro = { nome: '', categoria: '', endereco: '', descricao: '' }
 
 function Cadastro() {
-  const [dados, setDados] = useState<NovoLocal>(dadosIniciais)
+  const [dados, setDados] = useState<DadosCadastro>(dadosIniciais)
+  const [erros, setErros] = useState<ErrosCadastro>({})
+  const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
+  const [status, setStatus] = useState('')
   const [enviando, setEnviando] = useState(false)
-  const [resultado, setResultado] = useState<Resultado>(null)
-  const mensagemRef = useRef<HTMLDivElement>(null)
+  const [cadastrado, setCadastrado] = useState(false)
+  const [erroEnvio, setErroEnvio] = useState('')
 
-  // Leva o foco até a mensagem para que o resultado do envio seja percebido.
-  useEffect(() => {
-    if (resultado) mensagemRef.current?.focus()
-  }, [resultado])
-
-  function atualizarCampo(
-    campo: Exclude<keyof NovoLocal, 'accessibilidades'>,
-    valor: string,
-  ) {
-    setDados((atuais) => ({ ...atuais, [campo]: valor }))
+  function alterar(campo: Campo, valor: string) {
+    const proximos = { ...dados, [campo]: valor }
+    setDados(proximos)
+    setStatus('')
+    setCadastrado(false)
+    setErroEnvio('')
+    if (visitados[campo]) {
+      setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(proximos)[campo] }))
+    }
   }
 
-  function alternarRecurso(recurso: string) {
-    setDados((atuais) => ({
-      ...atuais,
-      accessibilidades: atuais.accessibilidades.includes(recurso)
-        ? atuais.accessibilidades.filter((item) => item !== recurso)
-        : [...atuais.accessibilidades, recurso],
-    }))
+  function validarCampo(campo: Campo) {
+    setVisitados((anteriores) => ({ ...anteriores, [campo]: true }))
+    setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(dados)[campo] }))
   }
 
-  async function enviarCadastro(event: FormEvent<HTMLFormElement>) {
+  async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
     // Impede envios repetidos enquanto a requisição está em andamento.
     if (enviando) return
+    setCadastrado(false)
+    setErroEnvio('')
+    const novosErros = validarCadastro(dados)
+    setErros(novosErros)
+    setVisitados({ nome: true, categoria: true, endereco: true, descricao: true })
+    const primeiroErro = campos.find((campo) => novosErros[campo.nome])
+    if (primeiroErro) {
+      setStatus('Revise os campos indicados antes de continuar.')
+      const controle = event.currentTarget.elements.namedItem(primeiroErro.nome)
+      if (controle instanceof HTMLElement) controle.focus()
+      return
+    }
 
     setEnviando(true)
-    setResultado(null)
-
+    setStatus('Enviando cadastro...')
     try {
-      const localCriado = await cadastrarLocal(dados)
-      setDados(dadosIniciais)
-      setResultado({
-        tipo: 'sucesso',
-        mensagem: `Local "${localCriado.nome}" cadastrado com sucesso.`,
+      const localCriado = await cadastrarLocal({
+        nome: dados.nome,
+        endereco: dados.endereco,
+        descricao: dados.descricao,
+        accessibilidades: [],
       })
+      setDados(dadosIniciais)
+      setErros({})
+      setVisitados({})
+      setStatus(`Local "${localCriado.nome}" cadastrado com sucesso.`)
+      setCadastrado(true)
     } catch (erro) {
       // Os dados digitados são mantidos para o usuário tentar novamente.
-      setResultado({
-        tipo: 'erro',
-        mensagem:
-          erro instanceof Error
-            ? erro.message
-            : 'Não foi possível cadastrar o local. Tente novamente.',
-      })
+      setStatus('')
+      setErroEnvio(erro instanceof Error ? erro.message : 'Não foi possível cadastrar o local. Tente novamente.')
     } finally {
       setEnviando(false)
     }
   }
 
   return (
-    <section
-      aria-labelledby="titulo-cadastro"
-      className="mx-auto w-full max-w-2xl px-4 py-8"
-    >
-      <h2 id="titulo-cadastro" className="text-2xl font-bold text-brand-primary">
-        Cadastrar local
-      </h2>
-
-      <p className="mt-2">Informe os dados do local que deseja cadastrar.</p>
-
-      <div
-        ref={mensagemRef}
-        tabIndex={-1}
-        aria-live="polite"
-        className="mt-4 focus:outline-none"
-      >
-        {resultado?.tipo === 'sucesso' && (
-          <div
-            role="status"
-            className="rounded-lg border border-green-700 bg-green-50 p-4 text-green-900"
-          >
-            <p>{resultado.mensagem}</p>
-            <Link
-              to="/locais"
-              className="mt-2 inline-block font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              Ver lista de locais
-            </Link>
-          </div>
-        )}
-
-        {resultado?.tipo === 'erro' && (
-          <p
-            role="alert"
-            className="rounded-lg border border-red-700 bg-red-50 p-4 text-red-900"
-          >
-            {resultado.mensagem}
-          </p>
-        )}
-      </div>
-
-      <form
-        onSubmit={enviarCadastro}
-        aria-busy={enviando}
-        className="mt-6 space-y-6"
-      >
-        <fieldset disabled={enviando} className="min-w-0 space-y-4">
-          <legend className="mb-4 text-lg font-semibold">
-            Informações do local
-          </legend>
-
-          <div>
-            <label htmlFor="nome" className="mb-1 block font-medium">
-              Nome do local
-            </label>
-            <input
-              id="nome"
-              name="nome"
-              type="text"
-              required
-              value={dados.nome}
-              onChange={(event) => atualizarCampo('nome', event.target.value)}
-              className={estiloCampo}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="endereco" className="mb-1 block font-medium">
-              Endereço
-            </label>
-            <input
-              id="endereco"
-              name="endereco"
-              type="text"
-              required
-              autoComplete="street-address"
-              value={dados.endereco}
-              onChange={(event) =>
-                atualizarCampo('endereco', event.target.value)
-              }
-              className={estiloCampo}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="descricao" className="mb-1 block font-medium">
-              Descrição do local
-            </label>
-            <textarea
-              id="descricao"
-              name="descricao"
-              rows={4}
-              value={dados.descricao}
-              onChange={(event) =>
-                atualizarCampo('descricao', event.target.value)
-              }
-              className={`${estiloCampo} resize-y`}
-            />
-          </div>
-        </fieldset>
-
-        <fieldset disabled={enviando} className="min-w-0">
-          <legend className="mb-2 text-lg font-semibold">
-            Recursos de acessibilidade
-          </legend>
-
-          <div className="grid gap-2 sm:grid-cols-2">
-            {RECURSOS_ACESSIBILIDADE.map((recurso) => (
-              <label key={recurso} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="accessibilidades"
-                  value={recurso}
-                  checked={dados.accessibilidades.includes(recurso)}
-                  onChange={() => alternarRecurso(recurso)}
-                  className="h-5 w-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-                />
-                {recurso}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <button
-          type="submit"
-          disabled={enviando}
-          className="rounded-lg bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
+    <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
+      <p className="mt-2">Todos os campos são obrigatórios.</p>
+      <p className="mt-2 text-slate-700">Preencha os dados do local que deseja cadastrar.</p>
+      <form noValidate onSubmit={enviar} aria-busy={enviando} className="mt-6 space-y-5">
+        {campos.map((campo) => {
+          const erro = erros[campo.nome]
+          const propriedades = {
+            id: campo.nome,
+            name: campo.nome,
+            required: true,
+            value: dados[campo.nome],
+            onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => alterar(campo.nome, event.target.value),
+            onBlur: () => validarCampo(campo.nome),
+            'aria-invalid': erro ? true : undefined,
+            'aria-describedby': erro ? `${campo.nome}-erro` : undefined,
+            className: `mt-1 block w-full rounded border p-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${erro ? 'border-red-700' : 'border-slate-500'}`,
+          }
+          return (
+            <div key={campo.nome}>
+              <label htmlFor={campo.nome} className="block font-semibold">{campo.rotulo}</label>
+              {campo.nome === 'descricao' ? <textarea {...propriedades} rows={4} /> : <input {...propriedades} type="text" />}
+              <p id={`${campo.nome}-erro`} aria-live="polite" className="mt-1 text-sm text-red-800">{erro}</p>
+            </div>
+          )
+        })}
+        <button type="submit" disabled={enviando} className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:cursor-not-allowed disabled:opacity-60">
           {enviando ? 'Enviando cadastro...' : 'Cadastrar local'}
         </button>
+        <p role="status" className="text-slate-800">{status}</p>
+        {erroEnvio && <p role="alert" className="rounded border border-red-700 bg-red-50 p-3 text-red-900">{erroEnvio}</p>}
+        {cadastrado && (
+          <Link to="/locais" className="inline-block font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">
+            Ver lista de locais
+          </Link>
+        )}
       </form>
     </section>
   )
