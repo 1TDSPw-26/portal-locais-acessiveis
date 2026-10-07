@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import CartaoLocal from '../../components/LocalCard/LocalCard'
 import Paginacao from '../../components/Paginacao/Paginacao'
-import { locais } from '../../components/Dados/Locais'
+import Loading from '../../components/Loading/Loading'
+import EstadoVazio from '../../components/EstadoVazio/EstadoVazio'
+import EstadoErro from '../../components/EstadoErro/EstadoErro'
+import { useLocais } from '../../hooks/useLocais'
 import { filtrarPorCategoria, obterCategorias } from './filtros'
 
 const ITENS_POR_PAGINA = 6
-const categorias = obterCategorias(locais)
 
 function Locais() {
+  const { dados, carregando, erro, recarregar } = useLocais()
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [categoria, setCategoria] = useState('')
-  const locaisFiltrados = filtrarPorCategoria(locais, categoria)
+
+  const categorias = obterCategorias(dados)
+  const locaisFiltrados = filtrarPorCategoria(dados, categoria)
 
   function mudarCategoria(valor: string) {
     setCategoria(valor)
@@ -28,6 +33,55 @@ function Locais() {
     indiceInicial,
     indiceInicial + ITENS_POR_PAGINA,
   )
+
+  // Estado de carregamento
+  if (carregando) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-6 py-10">
+        <header>
+          <h1 className="text-3xl font-bold">
+            Locais acessíveis
+          </h1>
+        </header>
+        <Loading mensagem="Carregando locais acessíveis..." />
+      </section>
+    )
+  }
+
+  // Estado de erro
+  if (erro) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-6 py-10">
+        <header>
+          <h1 className="text-3xl font-bold">
+            Locais acessíveis
+          </h1>
+        </header>
+        <EstadoErro
+          titulo="Erro ao carregar locais"
+          mensagem={erro}
+          aoTentarNovamente={recarregar}
+        />
+      </section>
+    )
+  }
+
+  // Estado vazio (sem dados retornados)
+  if (dados.length === 0) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-6 py-10">
+        <header>
+          <h1 className="text-3xl font-bold">
+            Locais acessíveis
+          </h1>
+        </header>
+        <EstadoVazio
+          titulo="Nenhum local cadastrado"
+          mensagem="Ainda não há locais cadastrados no portal. Volte em breve!"
+        />
+      </section>
+    )
+  }
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -72,8 +126,12 @@ function Locais() {
         {locaisFiltrados.length} {locaisFiltrados.length === 1 ? 'local encontrado' : 'locais encontrados'}
         {categoria ? ` na categoria ${categoria}.` : '.'}
       </p>
+
       {locaisFiltrados.length === 0 && (
-        <p className="mt-4">Nenhum local encontrado nesta categoria. Selecione outra categoria ou limpe o filtro.</p>
+        <EstadoVazio
+          titulo="Nenhum local nesta categoria"
+          mensagem="Nenhum local encontrado nesta categoria. Selecione outra categoria ou limpe o filtro."
+        />
       )}
 
       <div
