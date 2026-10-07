@@ -12,6 +12,8 @@ export default function LocalCard({ local }: LocalCardProps) {
         {local.nome}
       </h3>
 
+      <p className="mt-2 text-sm font-semibold">Categoria: {local.categoria}</p>
+
       <p className="mt-2 text-sm">
         {local.descricao}
       </p>
