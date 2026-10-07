@@ -87,12 +87,13 @@ describe('Integração do cadastro com o serviço', () => {
     expect(cadastrarLocalMock).toHaveBeenCalledTimes(1)
     expect(cadastrarLocalMock).toHaveBeenCalledWith({
       nome: 'Biblioteca',
+      categoria: 'Cultura',
       endereco: 'Rua A, 10',
       descricao: 'Entrada com rampa',
       accessibilidades: [],
     })
 
-    concluir({ id: 19, nome: 'Biblioteca', endereco: 'Rua A, 10', descricao: 'Entrada com rampa', accessibilidades: [] })
+    concluir({ id: 19, nome: 'Biblioteca', categoria: 'Cultura', endereco: 'Rua A, 10', descricao: 'Entrada com rampa', accessibilidades: [] })
     expect(await screen.findByText('Local "Biblioteca" cadastrado com sucesso.')).toHaveAttribute('role', 'status')
     expect(screen.getByRole('link', { name: 'Ver lista de locais' })).toHaveAttribute('href', '/locais')
     expect(screen.getByLabelText('Nome do local')).toHaveValue('')

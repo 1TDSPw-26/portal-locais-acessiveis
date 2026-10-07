@@ -54,6 +54,7 @@ function Cadastro() {
     try {
       const localCriado = await cadastrarLocal({
         nome: dados.nome,
+        categoria: dados.categoria,
         endereco: dados.endereco,
         descricao: dados.descricao,
         accessibilidades: [],

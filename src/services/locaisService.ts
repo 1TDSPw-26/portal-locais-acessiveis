@@ -41,6 +41,7 @@ export async function cadastrarLocal(novoLocal: NovoLocal): Promise<Locais> {
   const localCriado: Locais = {
     id: proximoId,
     nome,
+    categoria: novoLocal.categoria.trim(),
     descricao: novoLocal.descricao.trim(),
     endereco,
     accessibilidades: novoLocal.accessibilidades,
