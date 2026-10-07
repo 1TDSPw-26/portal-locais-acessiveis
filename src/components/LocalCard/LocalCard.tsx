@@ -1,5 +1,6 @@
 
 import type { Locais } from '../../types/Locais';
+import { Link } from 'react-router-dom';
 
 type LocalCardProps = {
   local: Locais;
@@ -27,6 +28,12 @@ export default function LocalCard({ local }: LocalCardProps) {
           <li key={item}>{item}</li>
         ))}
       </ul>
+      <Link
+          to={`/locais/${local.id}/editar`}
+          className="mt-4 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">
+          Editar{' '}
+          <span className="sr-only">{local.nome}</span>
+      </Link>
     </article>
   )
 }
