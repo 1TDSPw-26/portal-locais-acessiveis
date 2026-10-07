@@ -1,6 +1,6 @@
 # Pacote GitHub — CP Continuado
 
-# Adicionei uma linha como teste
+# Adicionei uma linha inicial (TESTE)
 
 Este pacote contém modelos padronizados para o projeto continuado do Portal de Locais e Serviços Acessíveis.
 
