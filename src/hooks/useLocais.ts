@@ -18,23 +18,33 @@ export function useLocais() {
     carregando: true,
     erro: null,
   })
+  const [versao, setVersao] = useState(0)
 
-  const carregar = useCallback(() => {
+  const recarregar = useCallback(() => {
     setEstado({ dados: [], carregando: true, erro: null })
-    buscarLocais()
-      .then((dados) => setEstado({ dados, carregando: false, erro: null }))
-      .catch(() =>
-        setEstado({
-          dados: [],
-          carregando: false,
-          erro: 'Não foi possível carregar os locais. Tente novamente mais tarde.',
-        }),
-      )
+    setVersao((v) => v + 1)
   }, [])
 
   useEffect(() => {
-    carregar()
-  }, [carregar])
+    let cancelado = false
+    buscarLocais()
+      .then((dados) => {
+        if (!cancelado) setEstado({ dados, carregando: false, erro: null })
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setEstado({
+            dados: [],
+            carregando: false,
+            erro: 'Não foi possível carregar os locais. Tente novamente mais tarde.',
+          })
+        }
+      })
 
-  return { ...estado, recarregar: carregar }
+    return () => {
+      cancelado = true
+    }
+  }, [versao])
+
+  return { ...estado, recarregar }
 }

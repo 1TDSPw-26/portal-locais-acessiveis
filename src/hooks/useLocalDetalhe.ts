@@ -18,27 +18,37 @@ export function useLocalDetalhe(id: string | undefined) {
     carregando: true,
     erro: null,
   })
+  const [versao, setVersao] = useState(0)
 
-  const carregar = useCallback(() => {
-    if (!id) {
-      setEstado({ dado: undefined, carregando: false, erro: null })
-      return
-    }
+  const recarregar = useCallback(() => {
     setEstado({ dado: undefined, carregando: true, erro: null })
-    buscarLocalPorId(id)
-      .then((dado) => setEstado({ dado, carregando: false, erro: null }))
-      .catch(() =>
-        setEstado({
-          dado: undefined,
-          carregando: false,
-          erro: 'Não foi possível carregar os detalhes do local. Tente novamente mais tarde.',
-        }),
-      )
-  }, [id])
+    setVersao((v) => v + 1)
+  }, [])
 
   useEffect(() => {
-    carregar()
-  }, [carregar])
+    if (!id) {
+      return
+    }
 
-  return { ...estado, recarregar: carregar }
+    let cancelado = false
+    buscarLocalPorId(id)
+      .then((dado) => {
+        if (!cancelado) setEstado({ dado, carregando: false, erro: null })
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setEstado({
+            dado: undefined,
+            carregando: false,
+            erro: 'Não foi possível carregar os detalhes do local. Tente novamente mais tarde.',
+          })
+        }
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [id, versao])
+
+  return { ...estado, recarregar }
 }
