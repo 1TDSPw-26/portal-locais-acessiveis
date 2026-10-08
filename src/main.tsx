@@ -1,17 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
 import App from './App'
 import './index.css'
-
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import Home from './routes/Home/index.tsx'
 import Locais from './pages/Locais/Locais.tsx'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
+
+import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
 import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
-import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
 
 const router = createBrowserRouter([
   {
