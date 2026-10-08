@@ -6,12 +6,13 @@ import App from './App'
 import './index.css'
 
 import Home from './routes/Home/index.tsx'
-import Locais from './routes/Locais/index.tsx'
+import Locais from './pages/Locais/Locais.tsx'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
 
 import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
+import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: '/locais',
         element: <Locais />,
+      },
+      {
+        path: '/locais/:id',
+        element: <LocalDetalhe />,
       },
       {
         path: '/cadastro',

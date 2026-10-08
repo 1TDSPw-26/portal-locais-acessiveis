@@ -1,7 +1,1 @@
-export default function Cadastro(){
-    return(
-        <main>
-            <h2>Cadastro</h2>
-        </main>
-    );
-}
+export { default } from '../../pages/Cadastro/Cadastro'
