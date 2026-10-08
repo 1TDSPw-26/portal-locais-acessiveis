@@ -7,7 +7,7 @@ type LocalCardProps = {
 
 export default function LocalCard({ local }: LocalCardProps) {
     return(
-         <article className="rounded-lg border border-border-subtle p-5">
+         <article role="listitem" className="h-full rounded-lg border border-border-subtle p-5">
       <h3 className="text-lg font-bold">
         {local.nome}
       </h3>
