@@ -39,8 +39,8 @@ function Cadastro() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
-      <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
+    <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro" className="text-[clamp(1.5rem,4vw,2rem)] font-bold leading-tight">Cadastrar local</h2>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
       <p className="mt-2 text-slate-700">Preencha os dados para validá-los. O envio do cadastro ainda não está disponível.</p>
       <form noValidate onSubmit={enviar} className="mt-6 space-y-5">
@@ -55,7 +55,7 @@ function Cadastro() {
             onBlur: () => validarCampo(campo.nome),
             'aria-invalid': erro ? true : undefined,
             'aria-describedby': erro ? `${campo.nome}-erro` : undefined,
-            className: `mt-1 block w-full rounded border p-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${erro ? 'border-red-700' : 'border-slate-500'}`,
+            className: `mt-1 block min-h-11 w-full rounded border p-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${erro ? 'border-red-700' : 'border-slate-500'}`,
           }
           return (
             <div key={campo.nome}>
