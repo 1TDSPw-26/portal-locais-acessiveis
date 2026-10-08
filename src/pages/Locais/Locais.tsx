@@ -30,9 +30,9 @@ function Locais() {
   )
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-10">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <header>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-[clamp(1.75rem,4vw,2.25rem)] font-bold leading-tight">
           Locais acessíveis
         </h1>
 
@@ -41,7 +41,7 @@ function Locais() {
         </p>
       </header>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="w-full sm:max-w-xs">
           <label htmlFor="categoria" className="block font-semibold">
             Categoria
@@ -50,7 +50,7 @@ function Locais() {
             id="categoria"
             value={categoria}
             onChange={(event) => mudarCategoria(event.target.value)}
-            className="mt-2 w-full rounded border border-border-subtle bg-white p-3 text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="mt-2 min-h-11 w-full rounded border border-border-subtle bg-white p-3 text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <option value="">Todas as categorias</option>
             {categorias.map((item) => (
@@ -62,7 +62,7 @@ function Locais() {
           type="button"
           onClick={() => mudarCategoria('')}
           disabled={!categoria}
-          className="rounded border px-4 py-3 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="min-h-11 rounded border px-4 py-3 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           Limpar filtro
         </button>
@@ -77,7 +77,7 @@ function Locais() {
       )}
 
       <div
-        className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        className="mt-8 grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3"
         aria-label={`Lista de locais, página ${paginaAtual}`}
       >
         {locaisPaginados.map((local) => (
