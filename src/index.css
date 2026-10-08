@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
-theme {
+@theme {
   --color-brand-primary: #1554a5;
   --color-brand-active: #1455ab;
   --color-brand-action: #1858ac;
-  --color-brand-footer: #164382;
+  --color-brand-secondary: #1e3a5f;
   --color-border-subtle: #d7e2f0;
   --color-header-edge: #202020;
 }
 
-:focus-visible {
-  outline: 3px solid var(--color-brand-primary);
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #f59e0b;
   outline-offset: 3px;
 }
