@@ -196,3 +196,58 @@ export function cadastrarLocal(dados: DadosLocal): Locais {
 
   return novoLocal;
 }
+
+export class LocalNaoEncontradoError extends Error {
+  constructor(id: number) {
+    super(`Local com ID ${id} não encontrado.`);
+    this.name = "LocalNaoEncontradoError";
+  }
+}
+
+export function atualizarLocal(
+  id: number,
+  dados: DadosLocal
+): Locais {
+  validarId(id);
+
+  const armazenamento = lerArmazenamento();
+  const indice = armazenamento.locais.findIndex(
+    (local) => local.id === id
+  );
+
+  if (indice === -1) {
+    throw new LocalNaoEncontradoError(id);
+  }
+
+  const atualizado: Locais = {
+    ...prepararDados(dados),
+    id,
+  };
+
+  armazenamento.locais[indice] = atualizado;
+
+  salvarArmazenamento(armazenamento);
+
+  return atualizado;
+}
+
+export function excluirLocal(id: number): Locais {
+  validarId(id);
+
+  const armazenamento = lerArmazenamento();
+  const local = armazenamento.locais.find(
+    (item) => item.id === id
+  );
+
+  if (!local) {
+    throw new LocalNaoEncontradoError(id);
+  }
+
+  armazenamento.locais = armazenamento.locais.filter(
+    (item) => item.id !== id
+  );
+
+  salvarArmazenamento(armazenamento);
+
+  return local;
+}
