@@ -315,7 +315,7 @@ export default function Home() {
           <div className="pt-4 flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/cadastro"
-              className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-8 py-4 rounded-xl transition text-lg shadow-lg focus:ring-4 focus:ring-white focus:outline-none"
+              className="bg-blue-800 hover:bg-blue-900 text-white border border-blue-500 font-semibold px-8 py-4 rounded-xl transition text-lg focus:ring-4 focus:ring-white focus:outline-none"
             >
               Cadastrar Novo Local
             </Link>
