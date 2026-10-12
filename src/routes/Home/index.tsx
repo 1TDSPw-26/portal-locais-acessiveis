@@ -10,10 +10,11 @@ import {
   Volume2, 
   Accessibility,
   HeartHandshake,
-  Star
+  Star,
+  Info
 } from 'lucide-react';
 
-// Exemplo de locais acessíveis em destaque na Home
+// Locais acessíveis em destaque na Home
 interface LocalDestaque {
   id: string;
   nome: string;
@@ -298,7 +299,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CALL TO ACTION PARA CADASTRO DE LOCAIS */}
+      {/* CHAMADA PARA CADASTRO DE LOCAIS */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-blue-700 text-white" aria-labelledby="cta-title">
         <div className="max-w-4xl mx-auto text-center space-y-6 flex flex-col items-center">
           <HeartHandshake className="w-16 h-16 mx-auto text-blue-200" aria-hidden="true" />
@@ -326,6 +327,39 @@ export default function Home() {
               Saber mais sobre o projeto
             </Link>
           </div>
+        </div>
+      </section>
+
+{/* SEÇÃO INFORMATIVA DE ACESSIBILIDADE DO SITE */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center" aria-labelledby="info-acessibilidade-title">
+        <div className="bg-slate-200/60 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+          <div className="flex items-center gap-4">
+            <Info className="w-8 h-8 text-blue-700 shrink-0" aria-hidden="true" />
+            <div>
+              <h3 id="info-acessibilidade-title" className="font-bold text-slate-900 text-lg">
+                Diretrizes e Recursos de Acessibilidade
+              </h3>
+              <p className="text-slate-600 text-sm">
+                Conheça os <a 
+                  href="https://www.w3c.br/traducoes/wcag/wcag21-pt-BR/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-700 font-semibold underline hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded px-0.5"
+                  aria-label="Conheça os padrões WCAG 2.1 (abre em uma nova aba)"
+                >
+                  padrões WCAG 2.1
+                </a> aplicados neste portal e os atalhos para navegação por teclado.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/acessibilidade"
+            className="bg-slate-900 text-white font-medium px-5 py-2.5 rounded-lg shrink-0 hover:bg-slate-800 transition focus:ring-4 focus:ring-blue-600 focus:outline-none text-sm inline-flex items-center gap-2"
+            aria-label="Mais informações sobre a acessibilidade do portal"
+          >
+            <span>Mais informações</span>
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
         </div>
       </section>
 
