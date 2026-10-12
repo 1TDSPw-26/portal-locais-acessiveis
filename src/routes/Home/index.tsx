@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Search, 
@@ -57,7 +57,7 @@ const LOCAIS_DESTAQUE: LocalDestaque[] = [
 
 export default function Home() {
   const [busca, setBusca] = useState('');
-  const [categoriaFiltro, setCategoriaFiltro] = useState('todos');
+  const [categoriaFiltro] = useState('todos');
 
   const locaisFiltrados = LOCAIS_DESTAQUE.filter(local => {
     const combinaBusca = local.nome.toLowerCase().includes(busca.toLowerCase()) || 
