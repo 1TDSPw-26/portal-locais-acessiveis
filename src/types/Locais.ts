@@ -6,4 +6,5 @@ export type Locais = {
   descricao: string;
   endereco: string;
   accessibilidades: string[]
+  avaliacao: string;
 }

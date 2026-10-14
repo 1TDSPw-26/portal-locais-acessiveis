@@ -157,6 +157,7 @@ function prepararDados(dados: DadosLocal): DadosLocal {
     accessibilidades: dados.accessibilidades.map(
       (recurso) => recurso.trim()
     ),
+    avaliacao: dados.avaliacao.trim()
   };
 }
 
