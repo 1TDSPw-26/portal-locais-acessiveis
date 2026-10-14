@@ -1,13 +1,13 @@
 import { locais as locaisIniciais } from "../components/Dados/Locais";
-import type { Locais } from "../types/Locais";
+import type { Local } from "../types/Local";
 
-export type DadosLocal = Omit<Locais, "id">;
+export type DadosLocal = Omit<Local, "id">;
 
 export const CHAVE_LOCAIS = "portal-locais-acessiveis:locais:v1";
 
 type ArmazenamentoLocais = {
   proximoId: number;
-  locais: Locais[];
+  locais: Local[];
 };
 
 export class ArmazenamentoLocaisError extends Error {
@@ -40,7 +40,7 @@ function possuiDadosValidos(valor: unknown): valor is DadosLocal {
   );
 }
 
-function ehLocal(valor: unknown): valor is Locais {
+function ehLocal(valor: unknown): valor is Local {
   if (!ehObjeto(valor)) {
     return false;
   }
@@ -92,7 +92,7 @@ function criarEstadoInicial(): ArmazenamentoLocais {
       ) + 1,
     locais: locaisIniciais.map((local) => ({
       ...local,
-      accessibilidades: [...local.accessibilidades],
+      accessibilidades: [...local.acessibilidades],
     })),
   };
 }
@@ -154,7 +154,7 @@ function prepararDados(dados: DadosLocal): DadosLocal {
     categoria: dados.categoria.trim(),
     endereco: dados.endereco.trim(),
     descricao: dados.descricao.trim(),
-    accessibilidades: dados.accessibilidades.map(
+    acessibilidades: dados.acessibilidades.map(
       (recurso) => recurso.trim()
     ),
   };
@@ -166,17 +166,17 @@ function validarId(id: number): void {
   }
 }
 
-export function listarLocais(): Locais[] {
+export function listarLocais(): Local[] {
   return lerArmazenamento().locais;
 }
 
-export function buscarLocalPorId(id: number): Locais | undefined {
+export function buscarLocalPorId(id: number): Local | undefined {
   validarId(id);
 
   return listarLocais().find((local) => local.id === id);
 }
 
-export function cadastrarLocal(dados: DadosLocal): Locais {
+export function cadastrarLocal(dados: DadosLocal): Local {
   const dadosPreparados = prepararDados(dados);
   const armazenamento = lerArmazenamento();
 
@@ -184,7 +184,7 @@ export function cadastrarLocal(dados: DadosLocal): Locais {
     throw new Error("Não há mais IDs disponíveis para cadastro.");
   }
 
-  const novoLocal: Locais = {
+  const novoLocal: Local = {
     ...dadosPreparados,
     id: armazenamento.proximoId,
   };
@@ -207,7 +207,7 @@ export class LocalNaoEncontradoError extends Error {
 export function atualizarLocal(
   id: number,
   dados: DadosLocal
-): Locais {
+): Local {
   validarId(id);
 
   const armazenamento = lerArmazenamento();
@@ -219,7 +219,7 @@ export function atualizarLocal(
     throw new LocalNaoEncontradoError(id);
   }
 
-  const atualizado: Locais = {
+  const atualizado: Local = {
     ...prepararDados(dados),
     id,
   };
@@ -231,7 +231,7 @@ export function atualizarLocal(
   return atualizado;
 }
 
-export function excluirLocal(id: number): Locais {
+export function excluirLocal(id: number): Local {
   validarId(id);
 
   const armazenamento = lerArmazenamento();

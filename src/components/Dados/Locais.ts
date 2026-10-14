@@ -2,13 +2,17 @@ import type { Local } from '../../types/Local';
 
 export const locais: Local[] = [
   {
-    id: 1,
-    categoria: 'Educação',
-    nome: 'Biblioteca Municipal',
-    descricao: 'Biblioteca municipal com ampla coleção de livros e recursos digitais.',
-    endereco: 'Centro - São Paulo/SP',
-    acessibilidades: ['Acesso para cadeirantes', 'Banheiro acessível'],
-  },
+  id: 1,
+  categoria: 'Educação',
+  nome: 'Biblioteca Municipal',
+  descricao: 'Biblioteca municipal com ampla coleção de livros.',
+  endereco: 'Centro - São Paulo/SP',
+  acessibilidades: [
+    'Acesso para cadeirantes',
+    'Banheiro acessível',
+  ],
+}
+,
   {
     id: 2,
     categoria: 'Cultura',
@@ -19,7 +23,7 @@ export const locais: Local[] = [
   },
   {
   id: 3,
-    categoria: 'Cultura',
+  categoria: 'Cultura',
   nome: 'Estação Cultural',
   descricao: 'Estação cultural com espaços para exposições e atividades artísticas.',
   endereco: 'Mooca - São Paulo/SP',
