@@ -107,7 +107,7 @@ function Locais() {
   return (
     <section
       aria-labelledby="titulo-locais"
-      className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6"
+      className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8"
     >
       <h1
         id="titulo-locais"
