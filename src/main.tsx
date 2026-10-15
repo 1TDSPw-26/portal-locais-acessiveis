@@ -12,6 +12,7 @@ import Sobre from './routes/Sobre/index.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
 import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
 import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
+import EditarLocal from './pages/EditarLocal/EditarLocal.tsx'
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: '/locais/:id',
         element: <LocalDetalhe />,
+      },
+      {
+        path: '/locais/:id/editar',
+        element: <EditarLocal />,
       },
       {
         path: '/cadastro',
