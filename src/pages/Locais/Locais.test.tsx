@@ -27,7 +27,7 @@ describe('Página Locais — exclusão com confirmação', () => {
     await user.type(screen.getByRole('searchbox', { name: 'Buscar por nome, categoria ou endereço' }), 'cidadao')
 
     expect(nomesNaLista()).toContain('Centro de Atendimento ao Cidadão')
-    expect(screen.getByText(/locais encontrados/)).toBeInTheDocument()
+    expect(screen.getByText('1 local encontrado')).toBeInTheDocument()
     expect(nomesNaLista()).not.toContain('Biblioteca Municipal')
   })
 
