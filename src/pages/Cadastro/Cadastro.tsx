@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import type { FormEvent } from 'react'
 import type { NovoLocal } from '../../types/Local'
 import { campos, validarCadastro } from './validacao'
@@ -18,6 +19,7 @@ function Cadastro() {
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
   const [status, setStatus] = useState('')
+  const [cadastroPendente, setCadastroPendente] = useState<DadosCadastro | null>(null)
 
   function validarDados(proximos: DadosCadastro) {
     return validarCadastro(proximos)
@@ -49,7 +51,8 @@ function Cadastro() {
       if (controle instanceof HTMLElement) controle.focus()
       return
     }
-    setStatus('Dados validados. O envio do cadastro ainda não está disponível; nenhum local foi salvo.')
+    setCadastroPendente(dados)
+    setStatus('Revise os dados no diálogo de confirmação antes de concluir. Nenhum local foi salvo.')
   }
 
   function alterarAcessibilidades(acessibilidades: string[]) {
@@ -91,6 +94,23 @@ function Cadastro() {
         <button type="submit" className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">Validar dados</button>
         <p role="status" className="text-slate-800">{status}</p>
       </form>
+      <ConfirmDialog
+        aberto={cadastroPendente !== null}
+        titulo="Confirmar cadastro"
+        textoConfirmar="Confirmar cadastro"
+        textoCancelar="Editar dados"
+        onCancelar={() => setCadastroPendente(null)}
+        onConfirmar={() => {
+          if (!cadastroPendente) return
+          setStatus(`Cadastro de "${cadastroPendente.nome.trim()}" confirmado. O envio será integrado em uma etapa posterior.`)
+          setCadastroPendente(null)
+        }}
+      >
+        <p>
+          Confirme o cadastro de <strong>{cadastroPendente?.nome}</strong>.
+          Você poderá revisar os dados antes da integração com o serviço.
+        </p>
+      </ConfirmDialog>
     </section>
   )
 }
