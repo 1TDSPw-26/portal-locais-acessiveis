@@ -58,7 +58,7 @@ describe('Mensagens por campo do cadastro', () => {
     }
     expect(screen.getByRole('button', { name: 'Validar dados' })).toHaveFocus()
     await user.keyboard('{Enter}')
-    expect(screen.getByRole('status')).toHaveTextContent('Local \"Biblioteca\" cadastrado com sucesso.')
+    expect(screen.getByRole('status')).toHaveTextContent(`Local "Biblioteca" cadastrado com sucesso.`)
     await user.clear(screen.getByLabelText('Nome do local'))
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     expect(screen.getByLabelText('Nome do local')).toHaveAttribute('aria-invalid', 'true')
