@@ -52,7 +52,7 @@ function Cadastro() {
       return
     }
     setCadastroPendente(dados)
-    setStatus('Revise os dados no diálogo de confirmação antes de concluir. Nenhum local foi salvo.')
+    setStatus('Dados validados. O envio do cadastro ainda não está disponível; nenhum local foi salvo. Revise os dados no diálogo de confirmação antes de concluir.')
   }
 
   function alterarAcessibilidades(acessibilidades: string[]) {
