@@ -1,31 +1,45 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import type { NovoLocal } from '../../types/Local'
 import { campos, validarCadastro } from './validacao'
 import type { Campo, DadosCadastro, ErrosCadastro } from './validacao'
+import RecursosAcessibilidade from './RecursosAcessibilidade'
+
+const dadosIniciais: NovoLocal = {
+  nome: '',
+  categoria: '',
+  endereco: '',
+  descricao: '',
+  acessibilidades: [],
+}
 
 function Cadastro() {
-  const [dados, setDados] = useState<DadosCadastro>({ nome: '', categoria: '', endereco: '', descricao: '' })
+  const [dados, setDados] = useState<NovoLocal>(dadosIniciais)
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
   const [status, setStatus] = useState('')
+
+  function validarDados(proximos: DadosCadastro) {
+    return validarCadastro(proximos)
+  }
 
   function alterar(campo: Campo, valor: string) {
     const proximos = { ...dados, [campo]: valor }
     setDados(proximos)
     setStatus('')
     if (visitados[campo]) {
-      setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(proximos)[campo] }))
+      setErros((anteriores) => ({ ...anteriores, [campo]: validarDados(proximos)[campo] }))
     }
   }
 
   function validarCampo(campo: Campo) {
     setVisitados((anteriores) => ({ ...anteriores, [campo]: true }))
-    setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(dados)[campo] }))
+    setErros((anteriores) => ({ ...anteriores, [campo]: validarDados(dados)[campo] }))
   }
 
   function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const novosErros = validarCadastro(dados)
+    const novosErros = validarDados(dados)
     setErros(novosErros)
     setVisitados({ nome: true, categoria: true, endereco: true, descricao: true })
     const primeiroErro = campos.find((campo) => novosErros[campo.nome])
@@ -36,6 +50,11 @@ function Cadastro() {
       return
     }
     setStatus('Dados validados. O envio do cadastro ainda não está disponível; nenhum local foi salvo.')
+  }
+
+  function alterarAcessibilidades(acessibilidades: string[]) {
+    setDados((anteriores) => ({ ...anteriores, acessibilidades }))
+    setStatus('')
   }
 
   return (
@@ -65,6 +84,10 @@ function Cadastro() {
             </div>
           )
         })}
+        <RecursosAcessibilidade
+          selecionados={dados.acessibilidades}
+          onChange={alterarAcessibilidades}
+        />
         <button type="submit" className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">Validar dados</button>
         <p role="status" className="text-slate-800">{status}</p>
       </form>
