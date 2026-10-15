@@ -10,7 +10,6 @@ import Locais from './pages/Locais/Locais.tsx'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
 
-import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
 import NotFound from './pages/NotFound/NotFound.tsx'
 import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
 import Acessibilidade from './pages/Acessibilidade/Acessibilidade.tsx'
