@@ -24,6 +24,9 @@ function normalizar(texto: string): string {
 }
 
 function Locais() {
+  useEffect(() => {
+    document.title = 'Locais acessíveis | AcessoLocal'
+  }, [])
   const [locais, setLocais] = useState<Local[]>(() => listarLocais())
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState(TODAS)
