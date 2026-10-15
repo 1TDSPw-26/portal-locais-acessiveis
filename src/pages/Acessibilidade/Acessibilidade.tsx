@@ -151,8 +151,8 @@ export default function Acessibilidade() {
             </span>
 
             <span className="leading-7">
-              Utilize a navegação principal para acessar Home, Locais, Cadastro
-              e Sobre.
+              Utilize a navegação principal para acessar Início, Locais, Sobre e
+              Acessibilidade. Para cadastrar um local, use o botão Cadastrar local.
             </span>
           </li>
 
