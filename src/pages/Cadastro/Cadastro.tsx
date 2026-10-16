@@ -19,6 +19,7 @@ function Cadastro() {
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
   const [status, setStatus] = useState('')
+  const [statusConfirmado, setStatusConfirmado] = useState(false)
   const [cadastroPendente, setCadastroPendente] = useState<DadosCadastro | null>(null)
 
   function validarDados(proximos: DadosCadastro) {
@@ -29,6 +30,7 @@ function Cadastro() {
     const proximos = { ...dados, [campo]: valor }
     setDados(proximos)
     setStatus('')
+    setStatusConfirmado(false)
     if (visitados[campo]) {
       setErros((anteriores) => ({ ...anteriores, [campo]: validarDados(proximos)[campo] }))
     }
@@ -41,6 +43,7 @@ function Cadastro() {
 
   function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setStatusConfirmado(false)
     const novosErros = validarDados(dados)
     setErros(novosErros)
     setVisitados({ nome: true, categoria: true, endereco: true, descricao: true })
@@ -92,7 +95,7 @@ function Cadastro() {
           onChange={alterarAcessibilidades}
         />
         <button type="submit" className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">Validar dados</button>
-        <p role="status" className="text-slate-800">{status}</p>
+        <p role="status" className={statusConfirmado ? 'rounded-md border border-green-200 bg-green-50 px-4 py-3 font-semibold text-green-800' : 'text-slate-800'}>{status}</p>
       </form>
       <ConfirmDialog
         aberto={cadastroPendente !== null}
@@ -103,6 +106,7 @@ function Cadastro() {
         onConfirmar={() => {
           if (!cadastroPendente) return
           setStatus(`Cadastro de "${cadastroPendente.nome.trim()}" confirmado. O envio será integrado em uma etapa posterior.`)
+          setStatusConfirmado(true)
           setCadastroPendente(null)
         }}
       >
