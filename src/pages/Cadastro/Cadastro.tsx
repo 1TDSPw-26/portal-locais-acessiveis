@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import type { FormEvent } from 'react'
 import type { NovoLocal } from '../../types/Local'
@@ -15,6 +15,9 @@ const dadosIniciais: NovoLocal = {
 }
 
 function Cadastro() {
+  useEffect(() => {
+    document.title = 'Cadastrar local | AcessoLocal'
+  }, [])
   const [dados, setDados] = useState<NovoLocal>(dadosIniciais)
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
@@ -65,7 +68,7 @@ function Cadastro() {
 
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
-      <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
+      <h1 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h1>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
       <p className="mt-2 text-slate-700">Preencha os dados para validá-los. O envio do cadastro ainda não está disponível.</p>
       <form noValidate onSubmit={enviar} className="mt-6 space-y-5">

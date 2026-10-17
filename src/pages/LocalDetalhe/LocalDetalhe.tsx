@@ -64,14 +64,14 @@ export default function LocalDetalhe() {
         className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
       >
         {breadcrumb}
-        <h2
+        <h1
           id="titulo-local"
           ref={tituloRef}
           tabIndex={-1}
           className="text-2xl font-bold text-gray-900 focus:outline-none"
         >
           Local não encontrado
-        </h2>
+        </h1>
         <p className="mt-3 text-gray-700">
           Não encontramos um local com o código “{id}”. Confira o endereço ou
           escolha um local na lista.
@@ -90,14 +90,14 @@ export default function LocalDetalhe() {
       className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
     >
       {breadcrumb}
-      <h2
+      <h1
         id="titulo-local"
         ref={tituloRef}
         tabIndex={-1}
         className="text-2xl font-bold wrap-break-word text-gray-900 focus:outline-none sm:text-3xl"
       >
         {local.nome}
-      </h2>
+      </h1>
       <p className="mt-3 text-gray-700">{local.descricao}</p>
 
       <dl className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -113,9 +113,9 @@ export default function LocalDetalhe() {
         </div>
       </dl>
 
-      <h3 className="mt-8 text-lg font-bold text-gray-900">
+      <h2 className="mt-8 text-lg font-bold text-gray-900">
         Recursos de acessibilidade
-      </h3>
+      </h2>
       {local.acessibilidades.length > 0 ? (
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {local.acessibilidades.map((recurso: string) => (

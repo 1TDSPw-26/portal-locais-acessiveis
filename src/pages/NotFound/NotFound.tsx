@@ -1,6 +1,10 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function NotFound(){
+    useEffect(() => {
+        document.title = 'Página não encontrada | AcessoLocal'
+    }, [])
     return (
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4 px-6 py-16 text-center">
             <span className="text-brand-primary text-7xl font-extrabold sm:text-8xl">404</span>
