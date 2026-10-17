@@ -8,6 +8,19 @@ import { buscarLocalPorId } from '../../services/locaisService'
 describe('EditarLocal', () => {
   beforeEach(() => localStorage.clear())
 
+  it('impede editar um local para duplicar outro existente', async () => {
+    const user = userEvent.setup()
+    render(<MemoryRouter initialEntries={['/locais/1/editar']}><Routes><Route path="/locais/:id/editar" element={<EditarLocal />} /></Routes></MemoryRouter>)
+    const outro = buscarLocalPorId(2)
+    if (!outro) throw new Error('Local de teste não encontrado')
+    await user.clear(screen.getByLabelText('Nome do local'))
+    await user.type(screen.getByLabelText('Nome do local'), outro.nome)
+    await user.clear(screen.getByLabelText('Endereço'))
+    await user.type(screen.getByLabelText('Endereço'), outro.endereco)
+    await user.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Já existe um local com as mesmas informações.')
+    expect(buscarLocalPorId(1)?.nome).not.toBe(outro.nome)
+  })
   it('atualiza e persiste os dados de um local', async () => {
     const user = userEvent.setup()
     render(<MemoryRouter initialEntries={['/locais/1/editar']}><Routes><Route path="/locais/:id/editar" element={<EditarLocal />} /></Routes></MemoryRouter>)
