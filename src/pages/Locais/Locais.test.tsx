@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Locais from './Locais'
+import { locais as locaisIniciais } from '../../components/Dados/Locais'
 import { excluirLocal, listarLocais } from '../../services/locaisService'
 
 function renderLocais() {
@@ -35,7 +36,7 @@ describe('Página Locais — exclusão com confirmação', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(nomesNaLista()).toContain('Parque Municipal')
-    expect(listarLocais()).toHaveLength(18)
+    expect(listarLocais()).toHaveLength(locaisIniciais.length)
   })
 
   it('exclui após confirmar, anuncia o resultado e persiste', async () => {
@@ -56,7 +57,7 @@ describe('Página Locais — exclusão com confirmação', () => {
     expect(
       screen.getByText('Local "Parque Municipal" excluído com sucesso.'),
     ).toBeInTheDocument()
-    expect(screen.getByText('17 locais encontrados')).toBeInTheDocument()
+    expect(screen.getByText(`${locaisIniciais.length - 1} locais encontrados`)).toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         level: 1,
@@ -71,7 +72,7 @@ describe('Página Locais — exclusão com confirmação', () => {
     renderLocais()
 
     screen
-      .getByRole('button', { name: 'Excluir Biblioteca Municipal' })
+      .getByRole('button', { name: 'Excluir Museu Catavento' })
       .focus()
     await user.keyboard('{Enter}')
 
@@ -80,7 +81,7 @@ describe('Página Locais — exclusão com confirmação', () => {
     expect(screen.getByRole('button', { name: 'Excluir' })).toHaveFocus()
     await user.keyboard('{Enter}')
 
-    expect(nomesNaLista()).not.toContain('Biblioteca Municipal')
+    expect(nomesNaLista()).not.toContain('Museu Catavento')
   })
 
   it('mostra erro se o local já tiver sido removido', async () => {
