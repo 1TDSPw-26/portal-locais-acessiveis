@@ -17,6 +17,6 @@ describe('Confirmação do cadastro', () => {
     expect(screen.getByRole('heading', { name: 'Confirmar cadastro' })).toBeInTheDocument()
     expect(screen.getByText('Biblioteca', { selector: 'strong' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Confirmar cadastro' }))
-    expect(screen.getByRole('status')).toHaveTextContent('Cadastro de "Biblioteca" confirmado')
+    expect(screen.getByRole('status')).toHaveTextContent('Local "Biblioteca" cadastrado com sucesso.')
   })
 })
