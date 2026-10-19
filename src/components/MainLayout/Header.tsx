@@ -5,6 +5,7 @@ import logo from '../../assets/logo.svg'
 const navigationItems = [
   { label: 'Início', path: '/' },
   { label: 'Locais', path: '/locais' },
+  { label: 'Favoritos', path: '/favoritos' },
   { label: 'Sobre', path: '/sobre' },
   { label: 'Acessibilidade', path: '/acessibilidade' },
 ]

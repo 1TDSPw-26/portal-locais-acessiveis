@@ -8,12 +8,15 @@ import Sobre from '../pages/Sobre/Sobre'
 import Acessibilidade from '../pages/Acessibilidade/Acessibilidade'
 import LocalDetalhe from '../pages/LocalDetalhe/LocalDetalhe'
 
+import Favoritos from './Favoritos'
+
 export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="locais" element={<Locais />} />
+        <Route path="favoritos" element={<Favoritos />} />
         <Route path="locais/:id" element={<LocalDetalhe />} />
         <Route path="cadastrar" element={<Cadastro />} />
         <Route path="sobre" element={<Sobre />} />
