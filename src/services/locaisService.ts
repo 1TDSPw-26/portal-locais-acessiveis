@@ -171,13 +171,7 @@ function normalizarTexto(texto: string): string {
 function dadosSaoIguais(primeiro: DadosLocal, segundo: DadosLocal): boolean {
   return (
     normalizarTexto(primeiro.nome) === normalizarTexto(segundo.nome) &&
-    normalizarTexto(primeiro.categoria) === normalizarTexto(segundo.categoria) &&
-    normalizarTexto(primeiro.endereco) === normalizarTexto(segundo.endereco) &&
-    normalizarTexto(primeiro.descricao) === normalizarTexto(segundo.descricao) &&
-    primeiro.acessibilidades.length === segundo.acessibilidades.length &&
-    primeiro.acessibilidades.every(
-      (recurso, indice) => normalizarTexto(recurso) === normalizarTexto(segundo.acessibilidades[indice]),
-    )
+    normalizarTexto(primeiro.endereco) === normalizarTexto(segundo.endereco)
   );
 }
 function impedirDuplicidade(locais: Local[], dados: DadosLocal, idIgnorado?: number): void {
