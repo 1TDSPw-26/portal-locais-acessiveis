@@ -29,12 +29,41 @@ export default function LocalDetalhe() {
     }
   }, [local])
 
+  const breadcrumb = (
+    <nav aria-label="Breadcrumb" className="mb-8">
+      <ol className="flex flex-wrap items-center gap-2 text-sm">
+        <li>
+          <Link
+            to="/"
+            className="text-gray-600 hover:text-brand-primary hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+          >
+            Início
+          </Link>
+        </li>
+        <li aria-hidden="true" className="text-gray-400">/</li>
+        <li>
+          <Link
+            to="/locais"
+            className="text-gray-600 hover:text-brand-primary hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+          >
+            Locais
+          </Link>
+        </li>
+        <li aria-hidden="true" className="text-gray-400">/</li>
+        <li aria-current="page" className="font-medium text-gray-900">
+          Detalhes do local
+        </li>
+      </ol>
+    </nav>
+  )
+
   if (!local) {
     return (
       <section
         aria-labelledby="titulo-local"
         className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
       >
+        {breadcrumb}
         <h2
           id="titulo-local"
           ref={tituloRef}
@@ -60,6 +89,7 @@ export default function LocalDetalhe() {
       aria-labelledby="titulo-local"
       className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
     >
+      {breadcrumb}
       <h2
         id="titulo-local"
         ref={tituloRef}

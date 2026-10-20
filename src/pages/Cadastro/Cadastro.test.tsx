@@ -52,9 +52,14 @@ describe('Mensagens por campo do cadastro', () => {
       await user.keyboard(valor)
       await user.tab()
     }
+    // Os recursos de acessibilidade também são controles de formulário navegáveis.
+    for (let indice = 0; indice < 6; indice += 1) {
+      await user.tab()
+    }
     expect(screen.getByRole('button', { name: 'Validar dados' })).toHaveFocus()
     await user.keyboard('{Enter}')
-    expect(screen.getByRole('status')).toHaveTextContent('nenhum local foi salvo')
+    await user.click(screen.getByRole('button', { name: 'Confirmar cadastro' }))
+    expect(screen.getByRole('status')).toHaveTextContent(`Local "Biblioteca" cadastrado com sucesso.`)
     await user.clear(screen.getByLabelText('Nome do local'))
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     expect(screen.getByLabelText('Nome do local')).toHaveAttribute('aria-invalid', 'true')

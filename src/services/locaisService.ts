@@ -171,11 +171,25 @@ function normalizarTexto(texto: string): string {
 function dadosSaoIguais(primeiro: DadosLocal, segundo: DadosLocal): boolean {
   return (
     normalizarTexto(primeiro.nome) === normalizarTexto(segundo.nome) &&
-    normalizarTexto(primeiro.endereco) === normalizarTexto(segundo.endereco)
+    normalizarTexto(primeiro.categoria) === normalizarTexto(segundo.categoria) &&
+    normalizarTexto(primeiro.endereco) === normalizarTexto(segundo.endereco) &&
+    normalizarTexto(primeiro.descricao) === normalizarTexto(segundo.descricao) &&
+    primeiro.acessibilidades.length === segundo.acessibilidades.length &&
+    primeiro.acessibilidades.every(
+      (recurso, indice) =>
+        normalizarTexto(recurso) === normalizarTexto(segundo.acessibilidades[indice]),
+    )
   );
 }
-function impedirDuplicidade(locais: Local[], dados: DadosLocal, idIgnorado?: number): void {
-  if (locais.some((local) => local.id !== idIgnorado && dadosSaoIguais(local, dados))) {
+function impedirDuplicidade(
+  locais: Local[],
+  dados: DadosLocal,
+  idIgnorado?: number,
+): void {
+  const duplicado = locais.some(
+    (local) => local.id !== idIgnorado && dadosSaoIguais(local, dados),
+  );
+  if (duplicado) {
     throw new Error("Já existe um local com as mesmas informações.");
   }
 }
@@ -193,6 +207,7 @@ export function buscarLocalPorId(id: number): Local | undefined {
 export function cadastrarLocal(dados: DadosLocal): Local {
   const dadosPreparados = prepararDados(dados);
   const armazenamento = lerArmazenamento();
+  impedirDuplicidade(armazenamento.locais, dadosPreparados);
 
   impedirDuplicidade(armazenamento.locais, dadosPreparados);
   if (armazenamento.proximoId >= Number.MAX_SAFE_INTEGER) {

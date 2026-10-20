@@ -1,31 +1,51 @@
 import { useState } from 'react'
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
+import { cadastrarLocal } from '../../services/locaisService'
 import type { FormEvent } from 'react'
+import type { NovoLocal } from '../../types/Local'
 import { campos, validarCadastro } from './validacao'
 import type { Campo, DadosCadastro, ErrosCadastro } from './validacao'
+import RecursosAcessibilidade from './RecursosAcessibilidade'
+
+const dadosIniciais: NovoLocal = {
+  nome: '',
+  categoria: '',
+  endereco: '',
+  descricao: '',
+  acessibilidades: [],
+}
 
 function Cadastro() {
-  const [dados, setDados] = useState<DadosCadastro>({ nome: '', categoria: '', endereco: '', descricao: '' })
+  const [dados, setDados] = useState<NovoLocal>(dadosIniciais)
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
   const [status, setStatus] = useState('')
+  const [statusConfirmado, setStatusConfirmado] = useState(false)
+  const [cadastroPendente, setCadastroPendente] = useState<NovoLocal | null>(null)
+
+  function validarDados(proximos: DadosCadastro) {
+    return validarCadastro(proximos)
+  }
 
   function alterar(campo: Campo, valor: string) {
     const proximos = { ...dados, [campo]: valor }
     setDados(proximos)
     setStatus('')
+    setStatusConfirmado(false)
     if (visitados[campo]) {
-      setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(proximos)[campo] }))
+      setErros((anteriores) => ({ ...anteriores, [campo]: validarDados(proximos)[campo] }))
     }
   }
 
   function validarCampo(campo: Campo) {
     setVisitados((anteriores) => ({ ...anteriores, [campo]: true }))
-    setErros((anteriores) => ({ ...anteriores, [campo]: validarCadastro(dados)[campo] }))
+    setErros((anteriores) => ({ ...anteriores, [campo]: validarDados(dados)[campo] }))
   }
 
   function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const novosErros = validarCadastro(dados)
+    setStatusConfirmado(false)
+    const novosErros = validarDados(dados)
     setErros(novosErros)
     setVisitados({ nome: true, categoria: true, endereco: true, descricao: true })
     const primeiroErro = campos.find((campo) => novosErros[campo.nome])
@@ -35,14 +55,20 @@ function Cadastro() {
       if (controle instanceof HTMLElement) controle.focus()
       return
     }
-    setStatus('Dados validados. O envio do cadastro ainda não está disponível; nenhum local foi salvo.')
+    setCadastroPendente(dados)
+    setStatus('Dados validados. Revise os dados no diálogo de confirmação antes de concluir.')
+  }
+
+  function alterarAcessibilidades(acessibilidades: string[]) {
+    setDados((anteriores) => ({ ...anteriores, acessibilidades }))
+    setStatus('')
   }
 
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
       <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
-      <p className="mt-2 text-slate-700">Preencha os dados para validá-los. O envio do cadastro ainda não está disponível.</p>
+      <p className="mt-2 text-slate-700">Preencha os dados para cadastrar um local.</p>
       <form noValidate onSubmit={enviar} className="mt-6 space-y-5">
         {campos.map((campo) => {
           const erro = erros[campo.nome]
@@ -65,9 +91,36 @@ function Cadastro() {
             </div>
           )
         })}
+        <RecursosAcessibilidade
+          selecionados={dados.acessibilidades}
+          onChange={alterarAcessibilidades}
+        />
         <button type="submit" className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">Validar dados</button>
-        <p role="status" className="text-slate-800">{status}</p>
+        <p role="status" className={statusConfirmado ? 'rounded-md border border-green-200 bg-green-50 px-4 py-3 font-semibold text-green-800' : 'text-slate-800'}>{status}</p>
       </form>
+      <ConfirmDialog
+        aberto={cadastroPendente !== null}
+        titulo="Confirmar cadastro"
+        textoConfirmar="Confirmar cadastro"
+        textoCancelar="Editar dados"
+        onCancelar={() => setCadastroPendente(null)}
+        onConfirmar={() => {
+          if (!cadastroPendente) return
+          try {
+            const local = cadastrarLocal(cadastroPendente)
+            setStatus(`Local "${local.nome}" cadastrado com sucesso.`)
+            setStatusConfirmado(true)
+            setCadastroPendente(null)
+          } catch (erro) {
+            setStatus(erro instanceof Error ? erro.message : 'Não foi possível salvar o local. Tente novamente.')
+          }
+        }}
+      >
+        <p>
+          Confirme o cadastro de <strong>{cadastroPendente?.nome}</strong>.
+          Você poderá revisar os dados antes da integração com o serviço.
+        </p>
+      </ConfirmDialog>
     </section>
   )
 }
