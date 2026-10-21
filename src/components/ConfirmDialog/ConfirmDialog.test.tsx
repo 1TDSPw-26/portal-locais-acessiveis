@@ -7,7 +7,7 @@ function renderDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) 
   const onConfirmar = vi.fn()
   const onCancelar = vi.fn()
 
-  render(
+  const view = render(
     <ConfirmDialog
       aberto
       titulo="Excluir local?"
@@ -19,24 +19,52 @@ function renderDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) 
     </ConfirmDialog>,
   )
 
-  return { onConfirmar, onCancelar }
+  return { onConfirmar, onCancelar, unmount: view.unmount }
 }
 
 describe('ConfirmDialog', () => {
-  it('não renderiza nada quando fechado', () => {
+  it('não renderiza o diálogo nem disponibiliza controles quando fechado', () => {
     renderDialog({ aberto: false })
+
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('expõe nome e descrição acessíveis e foca em Cancelar', () => {
+  it('abre como modal e expõe nome e descrição acessíveis', () => {
     renderDialog()
     const dialog = screen.getByRole('dialog', { name: 'Excluir local?' })
 
+    expect(dialog).toHaveAttribute('aria-labelledby')
     expect(dialog).toHaveAccessibleDescription('Esta ação não pode ser desfeita.')
-    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+    expect(dialog).toHaveAttribute('open')
   })
 
-  it('chama onConfirmar e onCancelar pelos botões', async () => {
+  it('move o foco inicial para Cancelar e retorna o foco ao elemento de abertura', async () => {
+    const user = userEvent.setup()
+    const abrir = document.createElement('button')
+    abrir.type = 'button'
+    abrir.textContent = 'Abrir confirmação'
+    document.body.append(abrir)
+    abrir.focus()
+
+    const { unmount } = renderDialog()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+
+    unmount()
+    expect(abrir).toHaveFocus()
+
+    await user.click(abrir)
+    abrir.remove()
+  })
+
+  it('expõe os nomes acessíveis personalizados dos botões', () => {
+    renderDialog({ textoConfirmar: 'Remover local', textoCancelar: 'Manter local' })
+
+    expect(screen.getByRole('button', { name: 'Remover local' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Manter local' })).toBeVisible()
+  })
+
+  it('dispara confirmação e cancelamento uma única vez pelos botões', async () => {
     const user = userEvent.setup()
     const { onConfirmar, onCancelar } = renderDialog()
 
@@ -47,15 +75,41 @@ describe('ConfirmDialog', () => {
     expect(onCancelar).toHaveBeenCalledOnce()
   })
 
-  it('cancela com a tecla Esc (evento cancel do dialog)', () => {
+  it('cancela com a tecla Escape e impede o fechamento nativo', () => {
     const { onCancelar } = renderDialog()
-    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+    const dialog = screen.getByRole('dialog')
+    const evento = new Event('cancel', { cancelable: true })
+
+    fireEvent(dialog, evento)
+
+    expect(evento.defaultPrevented).toBe(true)
     expect(onCancelar).toHaveBeenCalledOnce()
   })
 
-  it('desabilita os botões enquanto processa', () => {
-    renderDialog({ processando: true })
-    expect(screen.getByRole('button', { name: 'Excluindo…' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+  it('cancela ao clicar no fundo do diálogo', () => {
+    const { onCancelar } = renderDialog()
+    const dialog = screen.getByRole('dialog')
+
+    fireEvent.click(dialog)
+
+    expect(onCancelar).toHaveBeenCalledOnce()
+  })
+
+  it('não permite confirmação ou cancelamento durante o processamento', async () => {
+    const user = userEvent.setup()
+    const { onConfirmar, onCancelar } = renderDialog({ processando: true })
+
+    const confirmar = screen.getByRole('button', { name: 'Excluindo…' })
+    const cancelar = screen.getByRole('button', { name: 'Cancelar' })
+
+    expect(confirmar).toBeDisabled()
+    expect(cancelar).toBeDisabled()
+
+    await user.click(confirmar)
+    await user.click(cancelar)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+
+    expect(onConfirmar).not.toHaveBeenCalled()
+    expect(onCancelar).not.toHaveBeenCalled()
   })
 })
