@@ -22,6 +22,8 @@ test.describe('ConfirmDialog', () => {
     await expect(dialog).toHaveAccessibleDescription(/Confirme o cadastro/)
     await expect(page.getByRole('button', { name: 'Editar dados' })).toBeFocused()
     await expect(page.getByRole('button', { name: 'Confirmar cadastro' })).toBeVisible()
+    await expect(dialog).toHaveAttribute('aria-labelledby', /.+/)
+    await expect(dialog).toHaveAttribute('aria-describedby', /.+/)
   })
 
   test('fecha pelo cancelamento e devolve o foco ao controle que abriu', async ({ page }) => {
