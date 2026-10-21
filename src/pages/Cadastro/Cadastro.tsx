@@ -65,7 +65,7 @@ function Cadastro() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
+    <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10" aria-labelledby="titulo-cadastro">
       <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
       <p className="mt-2 text-slate-700">Preencha os dados para cadastrar um local.</p>
