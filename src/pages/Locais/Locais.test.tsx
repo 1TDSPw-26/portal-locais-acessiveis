@@ -201,7 +201,7 @@ describe('Página Locais — nova tentativa de carregamento', () => {
 
     expect(busca).toHaveValue('Parque')
     expect(nomesNaLista()).toContain('Parque Municipal')
-    expect(screen.getByText('1 local encontrado')).toBeInTheDocument()
+    expect(screen.getByText('2 locais encontrados')).toBeInTheDocument()
   })
 
   it('mantém a categoria selecionada após uma falha consecutiva', async () => {
