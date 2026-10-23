@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { Local } from '../../types/Local'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import Paginacao from '../../components/Paginacao/Paginacao'
-import { excluirLocal, listarLocais } from '../../services/locaisService'
+import EstadoErro from '../../components/EstadoErro/EstadoErro'
+import { excluirLocal } from '../../services/locaisService'
+import { useLocais } from '../../hooks/useLocais'
 import LocalCard from './LocalCard'
 
 const ITENS_POR_PAGINA = 6
@@ -17,14 +19,11 @@ type Aviso = {
 }
 
 function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 }
 
 function Locais() {
-  const [locais, setLocais] = useState<Local[]>(() => listarLocais())
+  const { dados: locais, carregando, erro, recarregar } = useLocais()
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState(TODAS)
   const [paginaAtual, setPaginaAtual] = useState(1)
@@ -39,8 +38,7 @@ function Locais() {
 
   const termo = normalizar(busca.trim())
   const locaisFiltrados = locais.filter((local) => {
-    const correspondeCategoria =
-      categoria === TODAS || local.categoria === categoria
+    const correspondeCategoria = categoria === TODAS || local.categoria === categoria
     const textoLocal = normalizar(
       `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
     )
@@ -48,10 +46,7 @@ function Locais() {
   })
 
   const filtroAtivo = termo !== '' || categoria !== TODAS
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(locaisFiltrados.length / ITENS_POR_PAGINA),
-  )
+  const totalPaginas = Math.max(1, Math.ceil(locaisFiltrados.length / ITENS_POR_PAGINA))
   const paginaCorrigida = Math.min(paginaAtual, totalPaginas)
   const indiceInicial = (paginaCorrigida - 1) * ITENS_POR_PAGINA
   const locaisPaginados = locaisFiltrados.slice(
@@ -60,9 +55,7 @@ function Locais() {
   )
 
   useEffect(() => {
-    if (aviso) {
-      tituloRef.current?.focus()
-    }
+    if (aviso) tituloRef.current?.focus()
   }, [aviso])
 
   function mudarBusca(valor: string) {
@@ -83,9 +76,7 @@ function Locais() {
   }
 
   function confirmarExclusao() {
-    if (!localParaExcluir) {
-      return
-    }
+    if (!localParaExcluir) return
 
     try {
       const removido = excluirLocal(localParaExcluir.id)
@@ -99,7 +90,7 @@ function Locais() {
         texto: `Não foi possível excluir "${localParaExcluir.nome}".`,
       })
     } finally {
-      setLocais(listarLocais())
+      recarregar()
       setLocalParaExcluir(null)
     }
   }
@@ -167,58 +158,73 @@ function Locais() {
           >
             <option value={TODAS}>Todas as categorias</option>
             {categorias.map((opcao) => (
-              <option key={opcao} value={opcao}>
-                {opcao}
-              </option>
+              <option key={opcao} value={opcao}>{opcao}</option>
             ))}
           </select>
         </div>
       </form>
 
-      <p role="status" className="mt-4 text-gray-700">
-        {locaisFiltrados.length === 1
-          ? '1 local encontrado'
-          : `${locaisFiltrados.length} locais encontrados`}
-      </p>
-
-      {locaisFiltrados.length > 0 ? (
-        <>
-          <ul
-            aria-label={`Lista de locais, página ${paginaCorrigida} de ${totalPaginas}`}
-            className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {locaisPaginados.map((local) => (
-              <li key={local.id}>
-                <LocalCard
-                  local={local}
-                  onExcluir={() => setLocalParaExcluir(local)}
-                />
-              </li>
-            ))}
-          </ul>
-          <Paginacao
-            paginaAtual={paginaCorrigida}
-            totalPaginas={totalPaginas}
-            aoMudarPagina={setPaginaAtual}
+      {erro ? (
+        <div className="mt-6">
+          <EstadoErro
+            titulo="Erro ao carregar locais"
+            mensagem={erro}
+            aoTentarNovamente={recarregar}
+            tentandoNovamente={carregando}
           />
-        </>
-      ) : (
-        <div className="mt-4">
-          <p className="text-gray-700">
-            {filtroAtivo
-              ? 'Nenhum local corresponde aos filtros escolhidos.'
-              : 'Nenhum local cadastrado ainda.'}
-          </p>
-          {filtroAtivo && (
-            <button
-              type="button"
-              onClick={limparFiltros}
-              className="text-brand-primary mt-2 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              Limpar filtros
-            </button>
-          )}
         </div>
+      ) : carregando ? (
+        <p role="status" className="mt-6 text-gray-700">
+          Carregando locais...
+        </p>
+      ) : (
+        <>
+          <p role="status" className="mt-4 text-gray-700">
+            {locaisFiltrados.length === 1
+              ? '1 local encontrado'
+              : `${locaisFiltrados.length} locais encontrados`}
+          </p>
+
+          {locaisFiltrados.length > 0 ? (
+            <>
+              <ul
+                aria-label={`Lista de locais, página ${paginaCorrigida} de ${totalPaginas}`}
+                className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              >
+                {locaisPaginados.map((local) => (
+                  <li key={local.id}>
+                    <LocalCard
+                      local={local}
+                      onExcluir={() => setLocalParaExcluir(local)}
+                    />
+                  </li>
+                ))}
+              </ul>
+              <Paginacao
+                paginaAtual={paginaCorrigida}
+                totalPaginas={totalPaginas}
+                aoMudarPagina={setPaginaAtual}
+              />
+            </>
+          ) : (
+            <div className="mt-4">
+              <p className="text-gray-700">
+                {filtroAtivo
+                  ? 'Nenhum local corresponde aos filtros escolhidos.'
+                  : 'Nenhum local cadastrado ainda.'}
+              </p>
+              {filtroAtivo && (
+                <button
+                  type="button"
+                  onClick={limparFiltros}
+                  className="text-brand-primary mt-2 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                >
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       <ConfirmDialog
@@ -229,8 +235,7 @@ function Locais() {
       >
         <p>
           Tem certeza de que deseja excluir{' '}
-          <strong>{localParaExcluir?.nome}</strong>? Esta ação não pode ser
-          desfeita.
+          <strong>{localParaExcluir?.nome}</strong>? Esta ação não pode ser desfeita.
         </p>
       </ConfirmDialog>
     </section>
