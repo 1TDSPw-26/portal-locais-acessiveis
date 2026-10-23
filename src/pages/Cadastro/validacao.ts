@@ -1,3 +1,6 @@
+import { validarCadastro } from '../../utils/validarCadastro'
+import type { DadosCadastro, ErrosCadastro, CampoCadastro } from '../../utils/validarCadastro'
+
 export const campos = [
   { nome: 'nome', rotulo: 'Nome do local', mensagem: 'Informe o nome do local.' },
   { nome: 'categoria', rotulo: 'Categoria', mensagem: 'Informe a categoria do local.' },
@@ -6,13 +9,6 @@ export const campos = [
 ] as const
 
 export type Campo = (typeof campos)[number]['nome']
-export type DadosCadastro = Record<Campo, string>
-export type ErrosCadastro = Partial<Record<Campo, string>>
-
-export function validarCadastro(dados: DadosCadastro): ErrosCadastro {
-  const erros: ErrosCadastro = {}
-  for (const campo of campos) {
-    if (!dados[campo.nome].trim()) erros[campo.nome] = campo.mensagem
-  }
-  return erros
-}
+export type { DadosCadastro, ErrosCadastro }
+export { validarCadastro }
+export type CampoObrigatorio = CampoCadastro
