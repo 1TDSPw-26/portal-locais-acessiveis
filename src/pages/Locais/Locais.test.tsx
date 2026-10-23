@@ -111,3 +111,74 @@ describe('Página Locais — exclusão com confirmação', () => {
     ).toBeInTheDocument()
   })
 })
+
+describe('Página Locais — limpar busca e filtros', () => {
+  const nomeBotao = 'Limpar busca e filtros'
+
+  it('não mostra o botão sem busca nem filtro', () => {
+    renderLocais()
+
+    expect(
+      screen.queryByRole('button', { name: nomeBotao }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('limpa somente a busca', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+    const total = listarLocais().length
+
+    const campo = screen.getByLabelText(/Buscar por nome/)
+    await user.type(campo, 'Parque Municipal')
+    await user.click(screen.getByRole('button', { name: nomeBotao }))
+
+    expect(campo).toHaveValue('')
+    expect(campo).toHaveFocus()
+    expect(
+      screen.getByText(`Busca e filtros removidos. ${total} locais exibidos.`),
+    ).toBeInTheDocument()
+    expect(screen.getByText(`${total} locais encontrados`)).toBeInTheDocument()
+  })
+
+  it('limpa somente a categoria', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+    const total = listarLocais().length
+
+    const select = screen.getByLabelText('Categoria')
+    await user.selectOptions(select, listarLocais()[0].categoria)
+    await user.click(screen.getByRole('button', { name: nomeBotao }))
+
+    expect(select).toHaveValue('')
+    expect(screen.getByText(`${total} locais encontrados`)).toBeInTheDocument()
+  })
+
+  it('limpa busca e categoria combinadas', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+    const total = listarLocais().length
+
+    const campo = screen.getByLabelText(/Buscar por nome/)
+    const select = screen.getByLabelText('Categoria')
+    await user.type(campo, 'Parque')
+    await user.selectOptions(select, listarLocais()[0].categoria)
+    await user.click(screen.getByRole('button', { name: nomeBotao }))
+
+    expect(campo).toHaveValue('')
+    expect(select).toHaveValue('')
+    expect(screen.getByText(`${total} locais encontrados`)).toBeInTheDocument()
+  })
+
+  it('funciona com teclado', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    const campo = screen.getByLabelText(/Buscar por nome/)
+    await user.type(campo, 'Parque')
+    screen.getByRole('button', { name: nomeBotao }).focus()
+    await user.keyboard('{Enter}')
+
+    expect(campo).toHaveValue('')
+    expect(campo).toHaveFocus()
+  })
+})
