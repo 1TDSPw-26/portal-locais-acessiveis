@@ -1,9 +1,124 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buscarLocalPorId } from '../../services/locaisService'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
+
+type FeedbackCompartilhamento = {
+  tipo: 'sucesso' | 'erro'
+  texto: string
+}
+
+function CompartilharLocal({ id, nome }: { id: number; nome: string }) {
+  const [feedback, setFeedback] = useState<FeedbackCompartilhamento | null>(
+    null,
+  )
+  const [mostrarLink, setMostrarLink] = useState(false)
+
+  // Só a rota do local: sem query string, hash ou dados privados.
+  const url = `${window.location.origin}/locais/${id}`
+
+  async function copiar() {
+    if (!navigator.clipboard?.writeText) {
+      setFeedback({
+        tipo: 'erro',
+        texto:
+          'Seu navegador não permite copiar automaticamente. Copie o link abaixo.',
+      })
+      setMostrarLink(true)
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(url)
+      setMostrarLink(false)
+      setFeedback({ tipo: 'sucesso', texto: 'Link copiado com sucesso.' })
+    } catch (erro) {
+      const permissaoNegada =
+        erro instanceof DOMException && erro.name === 'NotAllowedError'
+      setFeedback({
+        tipo: 'erro',
+        texto: permissaoNegada
+          ? 'O navegador bloqueou o acesso à área de transferência. Copie o link abaixo.'
+          : 'Não foi possível copiar o link. Copie o link abaixo.',
+      })
+      setMostrarLink(true)
+    }
+  }
+
+  async function compartilhar() {
+    setFeedback(null)
+
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: `${nome} | AcessoLocal`,
+          text: `Veja as informações de acessibilidade de ${nome}.`,
+          url,
+        })
+        setMostrarLink(false)
+        setFeedback({ tipo: 'sucesso', texto: 'Link compartilhado com sucesso.' })
+        return
+      } catch (erro) {
+        // O usuário fechou a janela de compartilhamento: não é uma falha.
+        if (erro instanceof DOMException && erro.name === 'AbortError') {
+          return
+        }
+      }
+    }
+
+    await copiar()
+  }
+
+  return (
+    <div className="mt-6">
+      <button
+        type="button"
+        onClick={compartilhar}
+        className="bg-brand-action hover:bg-brand-footer inline-flex min-h-11 items-center justify-center gap-2 rounded-[7px] px-5 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+      >
+        Compartilhar local
+      </button>
+
+      <div aria-live="polite" className="mt-3">
+        {feedback?.tipo === 'sucesso' && (
+          <p className="text-sm font-bold text-green-800">
+            <span aria-hidden="true">✓ </span>
+            {feedback.texto}
+          </p>
+        )}
+      </div>
+      <div role="alert" className="mt-3">
+        {feedback?.tipo === 'erro' && (
+          <p className="text-sm font-bold text-red-800">
+            <span aria-hidden="true">✕ </span>
+            {feedback.texto}
+          </p>
+        )}
+      </div>
+
+      {mostrarLink && (
+        <div className="mt-3">
+          <label
+            htmlFor="link-local"
+            className="text-sm font-bold text-gray-700"
+          >
+            Link do local
+          </label>
+          <input
+            id="link-local"
+            type="text"
+            readOnly
+            value={url}
+            onFocus={(evento) => evento.currentTarget.select()}
+            className="border-border-subtle mt-1 block min-h-11 w-full rounded-md border px-3 text-gray-900"
+          />
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function LocalDetalhe() {
   const { id } = useParams()
@@ -99,6 +214,8 @@ export default function LocalDetalhe() {
         {local.nome}
       </h2>
       <p className="mt-3 text-gray-700">{local.descricao}</p>
+
+      <CompartilharLocal key={local.id} id={local.id} nome={local.nome} />
 
       <dl className="mt-6 grid gap-4 sm:grid-cols-2">
         <div>
