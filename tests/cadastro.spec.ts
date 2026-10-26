@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test('erros, correção, teclado e layout do cadastro', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('link', { name: 'Cadastro', exact: true }).click()
+  await page.getByRole('banner').getByRole('link', { name: 'Cadastrar local', exact: true }).click()
   await page.getByRole('button', { name: 'Validar dados' }).click()
   const nome = page.getByLabel('Nome do local')
   await expect(nome).toBeFocused()

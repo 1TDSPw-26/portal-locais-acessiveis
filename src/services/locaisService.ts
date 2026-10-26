@@ -165,6 +165,34 @@ function validarId(id: number): void {
     throw new Error("O ID deve ser um número inteiro positivo.");
   }
 }
+function normalizarTexto(texto: string): string {
+  return texto.trim().toLocaleLowerCase("pt-BR");
+}
+function dadosSaoIguais(primeiro: DadosLocal, segundo: DadosLocal): boolean {
+  return (
+    normalizarTexto(primeiro.nome) === normalizarTexto(segundo.nome) &&
+    normalizarTexto(primeiro.categoria) === normalizarTexto(segundo.categoria) &&
+    normalizarTexto(primeiro.endereco) === normalizarTexto(segundo.endereco) &&
+    normalizarTexto(primeiro.descricao) === normalizarTexto(segundo.descricao) &&
+    primeiro.acessibilidades.length === segundo.acessibilidades.length &&
+    primeiro.acessibilidades.every(
+      (recurso, indice) =>
+        normalizarTexto(recurso) === normalizarTexto(segundo.acessibilidades[indice]),
+    )
+  );
+}
+function impedirDuplicidade(
+  locais: Local[],
+  dados: DadosLocal,
+  idIgnorado?: number,
+): void {
+  const duplicado = locais.some(
+    (local) => local.id !== idIgnorado && dadosSaoIguais(local, dados),
+  );
+  if (duplicado) {
+    throw new Error("Já existe um local com as mesmas informações.");
+  }
+}
 
 export function listarLocais(): Local[] {
   return lerArmazenamento().locais;
@@ -179,6 +207,7 @@ export function buscarLocalPorId(id: number): Local | undefined {
 export function cadastrarLocal(dados: DadosLocal): Local {
   const dadosPreparados = prepararDados(dados);
   const armazenamento = lerArmazenamento();
+  impedirDuplicidade(armazenamento.locais, dadosPreparados);
 
   if (armazenamento.proximoId >= Number.MAX_SAFE_INTEGER) {
     throw new Error("Não há mais IDs disponíveis para cadastro.");
@@ -219,8 +248,10 @@ export function atualizarLocal(
     throw new LocalNaoEncontradoError(id);
   }
 
+  const dadosPreparados = prepararDados(dados);
+  impedirDuplicidade(armazenamento.locais, dadosPreparados, id);
   const atualizado: Local = {
-    ...prepararDados(dados),
+    ...dadosPreparados,
     id,
   };
 

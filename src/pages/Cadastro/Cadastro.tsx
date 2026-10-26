@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
+import { cadastrarLocal } from '../../services/locaisService'
 import type { FormEvent } from 'react'
 import type { NovoLocal } from '../../types/Local'
 import { campos, validarCadastro } from './validacao'
@@ -23,7 +24,7 @@ function Cadastro() {
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})
   const [status, setStatus] = useState('')
   const [statusConfirmado, setStatusConfirmado] = useState(false)
-  const [cadastroPendente, setCadastroPendente] = useState<DadosCadastro | null>(null)
+  const [cadastroPendente, setCadastroPendente] = useState<NovoLocal | null>(null)
 
   function validarDados(proximos: DadosCadastro) {
     return validarCadastro(proximos)
@@ -58,7 +59,7 @@ function Cadastro() {
       return
     }
     setCadastroPendente(dados)
-    setStatus('Dados validados. O envio do cadastro ainda não está disponível; nenhum local foi salvo. Revise os dados no diálogo de confirmação antes de concluir.')
+    setStatus('Dados validados. Revise os dados no diálogo de confirmação antes de concluir.')
   }
 
   function alterarAcessibilidades(acessibilidades: string[]) {
@@ -67,10 +68,10 @@ function Cadastro() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="titulo-cadastro">
-      <h1 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h1>
+    <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
-      <p className="mt-2 text-slate-700">Preencha os dados para validá-los. O envio do cadastro ainda não está disponível.</p>
+      <p className="mt-2 text-slate-700">Preencha os dados para cadastrar um local.</p>
       <form noValidate onSubmit={enviar} className="mt-6 space-y-5">
         {campos.map((campo) => {
           const erro = erros[campo.nome]
@@ -108,9 +109,14 @@ function Cadastro() {
         onCancelar={() => setCadastroPendente(null)}
         onConfirmar={() => {
           if (!cadastroPendente) return
-          setStatus(`Cadastro de "${cadastroPendente.nome.trim()}" confirmado. O envio será integrado em uma etapa posterior.`)
-          setStatusConfirmado(true)
-          setCadastroPendente(null)
+          try {
+            const local = cadastrarLocal(cadastroPendente)
+            setStatus(`Local "${local.nome}" cadastrado com sucesso.`)
+            setStatusConfirmado(true)
+            setCadastroPendente(null)
+          } catch (erro) {
+            setStatus(erro instanceof Error ? erro.message : 'Não foi possível salvar o local. Tente novamente.')
+          }
         }}
       >
         <p>
