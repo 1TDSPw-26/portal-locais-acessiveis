@@ -126,7 +126,7 @@ function Cadastro() {
             setStatusConfirmado(true)
             setCadastroPendente(null)
           } catch (erro) {
-            setStatus(erro instanceof Error ? erro.message : 'Não foi possível salvar o local. Tente novamente.')
+            setStatus(erro instanceof Error ? erro.message : 'Não foi possível salvar o local. Tente novamente!')
           }
         }}
       >
