@@ -27,7 +27,7 @@ export default function LocalCard({ local, onExcluir }: LocalCardProps) {
         {local.acessibilidades.map((recurso) => (
           <li
             key={recurso}
-            className="bg-border-subtle rounded-sm px-2 py-1 text-sm text-gray-900"
+            className="bg-border-subtle min-w-0 rounded-sm px-2 py-1 text-sm wrap-anywhere text-gray-900"
           >
             {recurso}
           </li>

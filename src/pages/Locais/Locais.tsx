@@ -139,9 +139,9 @@ function Locais() {
         role="search"
         aria-label="Filtrar locais"
         onSubmit={(evento) => evento.preventDefault()}
-        className="mt-6 grid gap-4 sm:grid-cols-[2fr_1fr]"
+        className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
       >
-        <div>
+        <div className="min-w-0">
           <label htmlFor="busca-local" className="font-bold text-gray-900">
             Buscar por nome, categoria ou endereço
           </label>
@@ -155,7 +155,7 @@ function Locais() {
             className={classeCampo}
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <label htmlFor="categoria-local" className="font-bold text-gray-900">
             Categoria
           </label>
@@ -185,10 +185,10 @@ function Locais() {
         <>
           <ul
             aria-label={`Lista de locais, página ${paginaCorrigida} de ${totalPaginas}`}
-            className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           >
             {locaisPaginados.map((local) => (
-              <li key={local.id}>
+              <li key={local.id} className="min-w-0">
                 <LocalCard
                   local={local}
                   onExcluir={() => setLocalParaExcluir(local)}
