@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import { cadastrarLocal } from '../../services/locaisService'
 import type { FormEvent } from 'react'
@@ -16,6 +16,9 @@ const dadosIniciais: NovoLocal = {
 }
 
 function Cadastro() {
+  useEffect(() => {
+    document.title = 'Cadastrar local | AcessoLocal'
+  }, [])
   const [dados, setDados] = useState<NovoLocal>(dadosIniciais)
   const [erros, setErros] = useState<ErrosCadastro>({})
   const [visitados, setVisitados] = useState<Partial<Record<Campo, boolean>>>({})

@@ -34,7 +34,12 @@ const pilares = [
   },
 ]
 
+import { useEffect } from 'react'
+
 function Sobre() {
+  useEffect(() => {
+    document.title = 'Sobre | AcessoLocal'
+  }, [])
   return (
     <div className="bg-white text-slate-900">
       <section

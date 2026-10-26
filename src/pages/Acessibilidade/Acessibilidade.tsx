@@ -1,4 +1,9 @@
+import { useEffect } from 'react'
+
 export default function Acessibilidade() {
+  useEffect(() => {
+    document.title = 'Acessibilidade | AcessoLocal'
+  }, [])
   return (
     <section
       aria-labelledby="titulo-acessibilidade"
