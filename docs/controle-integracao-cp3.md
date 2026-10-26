@@ -71,3 +71,113 @@ A ordem busca resolver primeiro a base de testes e os PRs fora da CP3 que servem
 - Foram encontrados problemas/cancelamentos em automações auxiliares do GitHub Project em alguns PRs (#121, #164 e #171); confirmar se algum deles corresponde a um check obrigatório antes de decidir.
 - A busca por issues abertas usando literalmente as labels `P0` e `P1` não retornou resultados. Isso não comprova que não existam prioridades críticas no Project: confirmar se o repositório usa outra convenção/campo de prioridade.
 - A lista de PRs é um snapshot e deve ser atualizada caso novos PRs abram, sejam merged/fechados ou mudem de milestone.
+
+
+## 5. Controle recorrente de status, reviews e alterações
+
+Esta seção registra o **estado operacional dos PRs**, separado da ordem proposta na seção 2. A ordem responde “qual vem antes”; esta seção responde “em que estado está cada PR, que review falta e se o código mudou desde a última checagem”.
+
+### 5.1. Regras para cada checagem
+
+Em cada rodada de acompanhamento:
+
+1. Consulte o PR no GitHub e confirme se está aberto, fechado ou integrado.
+2. Compare o `HEAD SHA` atual com o SHA registrado na rodada anterior. **SHA diferente = houve novo commit na branch**; registre o SHA anterior e o atual, e revise se a aprovação e o QA continuam válidos para o novo conteúdo.
+3. Confira a review formal mais recente em **Reviews**. Registre autor, estado (`APPROVED`, `CHANGES_REQUESTED`, `COMMENTED`) e data. Não trate uma aprovação antiga como aprovação automática de commits posteriores.
+4. Confirme que a revisão técnica foi feita por revisor autorizado e não pelo autor do próprio PR. Uma review formal `APPROVED` é evidência de revisão técnica, mas não substitui a decisão de QA.
+5. Confira separadamente a seção **Decisão do QA** no PR e/ou a Issue de teste vinculada: `Aprovado`, `Aprovado com ressalva`, `Reprovado` ou `Bloqueado`. Registre o link da evidência/Issue do teste.
+6. Confira conversas de revisão não resolvidas, comentários na aba **Conversation**, solicitações de mudança e revisões pendentes. A consulta-base não retornou threads de revisão inline para os PRs; isso **não elimina a necessidade de conferir a conversa geral**.
+7. Confira o workflow **Verificação de qualidade / lint-build-test** associado ao HEAD atual. Registre `Passou`, `Falhou`, `Em execução` ou `Não localizado`, de preferência com link/número da execução. Não use resultado de um SHA antigo.
+8. Só altere o status de integração para **Pronto para merge** quando dependências e bloqueios estiverem resolvidos, o HEAD atual tiver review técnica válida, QA estiver aprovado, CI estiver verde e as conversas estiverem resolvidas. Após o merge, registre data e SHA do merge em vez de deixar o PR como pendente.
+
+### 5.2. Valores padronizados de status
+
+| Campo | Valores sugeridos | Quando usar |
+|---|---|---|
+| Status de integração | `Pendente`, `Em revisão`, `Bloqueado`, `Pronto para merge`, `Integrado`, `Fechado sem merge` | `Integrado` somente depois de confirmar o merge em `develop`. |
+| Review técnica | `Faltando`, `APPROVED`, `CHANGES_REQUESTED`, `COMMENTED`, `Re-review necessária` | Use `Re-review necessária` se o HEAD mudou depois da aprovação ou depois de uma solicitação de mudanças. |
+| QA | `Não confirmado`, `Pendente`, `Aprovado`, `Aprovado com ressalva`, `Reprovado`, `Bloqueado` | Só marque como aprovado após encontrar a decisão e a evidência no PR/Issue de teste. |
+| Mudou desde a última checagem? | `Sim`, `Não`, `Primeira comparação` | Compare o SHA atual com o último SHA salvo. |
+| CI do HEAD atual | `Passou`, `Falhou`, `Em execução`, `Não localizado` | Sempre conferir a execução associada ao commit atual. |
+| Conversas | número de abertas + ação | Não marcar como resolvido apenas para liberar merge; a correção ou decisão precisa estar registrada. |
+
+### 5.3. Linha de base observada em 26/10/2026
+
+Os SHAs abaixo são a **primeira linha de base para comparações futuras**, não o SHA necessariamente revisado por cada aprovador. A consulta de reviews não expôs consistentemente o commit exato coberto por cada aprovação; antes do merge, confirme no GitHub se a review abrange o HEAD atual.
+
+Todos os 21 PRs estavam **abertos e não integrados** na consulta. O check de qualidade `lint-build-test` retornou sucesso no HEAD consultado para cada PR listado abaixo. Isso não equivale a aprovação de QA nem valida a integração conjunta dos PRs.
+
+| PR | Status de integração em 26/10 | Review técnica formal mais recente encontrada | QA | CI de qualidade no HEAD consultado | HEAD SHA (base) | Última atualização do PR (UTC) |
+|---|---|---|---|---|---|---|
+| [#111](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/111) | **Pendente — re-review necessária** | `CHANGES_REQUESTED` (17/10); PR atualizado em 21/10 | Não confirmado | Passou (#163) | `46e979f` | 2026-10-21T22:31:01Z |
+| [#114](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/114) | Pendente | `APPROVED` (15/10) | Não confirmado | Passou (#129) | `1e23ff0` | 2026-10-15T01:31:12Z |
+| [#116](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/116) | Pendente | `APPROVED` (15/10) | Não confirmado | Passou (#135) | `2b90a4b` | 2026-10-15T21:37:26Z |
+| [#119](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/119) | **Bloqueado — GitHub retornou `mergeable: false`** | `APPROVED` (19/10); exigir nova conferência após resolver conflitos | Não confirmado | Passou (#149) | `d75c46a` | 2026-10-19T22:19:49Z |
+| [#120](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/120) | **Bloqueado — alinhar dado do ID 1 com #122** | `APPROVED` (15/10); confirmar se cobre o HEAD atual após a decisão sobre os mocks | Não confirmado | Passou (#122) | `7228688` | 2026-10-15T21:38:10Z |
+| [#121](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/121) | Pendente | `APPROVED` (15/10) | Não confirmado | Passou (#117) | `97c19d5` | 2026-10-15T01:33:23Z |
+| [#122](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/122) | Pendente — precede a decisão final do #120 | `APPROVED` (19/10) | Não confirmado | Passou (#150) | `87da7d7` | 2026-10-19T22:19:32Z |
+| [#135](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/135) | Pendente | `APPROVED` (19/10) | Não confirmado | Passou (#153) | `19f50bb` | 2026-10-19T22:19:15Z |
+| [#136](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/136) | Pendente — integrar antes do #171 | `APPROVED` (19/10) | Não confirmado | Passou (#154) | `30b0e13` | 2026-10-19T22:19:01Z |
+| [#145](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/145) | **Bloqueado — conciliar contrato com Issue #127** | **Faltando** | Não confirmado | Passou (#157) | `9d5f155` | 2026-10-19T23:28:38Z |
+| [#162](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/162) | Pendente | **Faltando** | Não confirmado | Passou (#164) | `dda3beb` | 2026-10-21T00:31:42Z |
+| [#164](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/164) | Pendente | **Faltando** | Não confirmado | Passou (#166) | `7a43d24` | 2026-10-21T23:22:40Z |
+| [#165](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/165) | Pendente | **Faltando** | Não confirmado | Passou (#167) | `65b0c73` | 2026-10-21T23:21:25Z |
+| [#166](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/166) | Pendente — confirmar isolamento/restauração dos dados E2E | **Faltando** | Não confirmado | Passou (#168) | `fbe619c` | 2026-10-23T01:25:55Z |
+| [#167](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/167) | Pendente | **Faltando** | Não confirmado | Passou (#169) | `c37f698` | 2026-10-23T19:54:03Z |
+| [#168](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/168) | Pendente — confirmar preservação de busca/filtros no retry | **Faltando** | Não confirmado | Passou (#170) | `aa55c9e` | 2026-10-23T22:26:18Z |
+| [#169](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/169) | Pendente — justificar/remover `src/services/apagar.txt` | **Faltando** | Não confirmado | Passou (#171) | `6adc9ce` | 2026-10-24T00:37:03Z |
+| [#170](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/170) | Pendente — validar teclado e foco | **Faltando** | Não confirmado | Passou (#172) | `244db01` | 2026-10-24T02:12:37Z |
+| [#171](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/171) | Pendente — integrar após #136 | **Faltando** | Não confirmado | Passou (#174) | `e6a4c11` | 2026-10-24T21:47:20Z |
+| [#172](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/172) | Pendente | **Faltando** | Não confirmado | Passou (#175) | `dc235e5` | 2026-10-26T02:53:44Z |
+| [#173](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/173) | Pendente | **Faltando** | Não confirmado | Passou (#176) | `231f22c` | 2026-10-26T18:11:55Z |
+
+#### Resumo de reviews faltantes na linha de base
+
+- **12 PRs sem review formal registrada na consulta:** #145, #162, #164, #165, #166, #167, #168, #169, #170, #171, #172 e #173.
+- **1 PR com solicitação de mudanças e re-review pendente:** #111.
+- **8 PRs com review formal `APPROVED` registrada:** #114, #116, #119, #120, #121, #122, #135 e #136. Isso não elimina os bloqueios listados acima, não prova aprovação de QA e não garante que o HEAD atual foi o commit revisado.
+- **QA:** a decisão de QA não foi confirmada para nenhum PR nesta checagem; verificar a seção `Decisão do QA` e a Issue de teste antes de marcar qualquer PR como pronto para merge.
+- **Conversas inline:** a consulta de threads inline não retornou threads para estes PRs. Ainda assim, revisar a aba Conversation de cada PR e confirmar que todas as solicitações de mudança e comentários relevantes foram tratados.
+- **CI:** a execução de qualidade associada ao HEAD consultado passou para todos os 21 PRs. Uma nova atualização de código exige conferir novamente o CI e a validade das reviews.
+
+## 6. Formulário para a próxima rodada de checagem
+
+Preencha este bloco sempre que fizer a verificação periódica. Use a tabela da seção 5.3 como comparação anterior, atualize os status atuais e registre abaixo somente as diferenças e decisões desta rodada. **Não apague o histórico anterior**: mantenha os registros de rodadas para saber quando um SHA mudou, uma review foi concedida ou um PR foi integrado.
+
+### Rodada de checagem — [AAAA-MM-DD HH:MM BRT]
+
+- **Responsável pela checagem:** [preencher]
+- **Data/hora da checagem:** [preencher em horário de Brasília]
+- **SHA atual de `develop`:** [preencher]
+- **Quantidade de PRs abertos nesta rodada:** [preencher]
+- **PRs integrados desde a checagem anterior:** [número + data + SHA do merge; ou “Nenhum”]
+- **PRs fechados sem merge:** [número + motivo; ou “Nenhum”]
+- **PRs com novo commit (SHA anterior → SHA atual):** [listar; ou “Nenhum”]
+- **Reviews técnicas recebidas desde a última rodada:** [PR + revisor + decisão + data]
+- **Reviews técnicas ainda faltantes:** [listar PRs]
+- **PRs com `CHANGES_REQUESTED` ou re-review necessária:** [listar + ação esperada]
+- **Decisões de QA recebidas:** [PR/Issue de teste + decisão + evidência]
+- **Decisões de QA ainda faltantes:** [listar PRs]
+- **Conversas/comentários pendentes:** [PR + resumo + responsável]
+- **CI falhou, está em execução ou não foi localizado:** [PR + SHA + link da execução]
+- **Bloqueios removidos nesta rodada:** [PR + decisão tomada]
+- **Bloqueios que continuam abertos:** [PR + responsável + próximo passo + prazo]
+- **Mudanças na ordem de integração:** [descrever o motivo; ou “Nenhuma”]
+
+#### Diferenças por PR nesta rodada
+
+Copie uma linha para cada PR aberto ou alterado; não é necessário repetir linhas de PRs fechados e sem alteração quando a última checagem ainda é válida.
+
+| PR | Status atual | HEAD SHA atual | SHA mudou? | Review cobre o HEAD atual? | Review técnica | QA | Threads/comentários pendentes | CI do HEAD | Próxima ação / responsável |
+|---|---|---|---|---|---|---|---|---|---|
+| #NNN | [Pendente/Em revisão/Bloqueado/Pronto para merge/Integrado/Fechado sem merge] | [SHA] | [Sim/Não/Primeira comparação] | [Sim/Não/Confirmar] | [Faltando/APPROVED/CHANGES_REQUESTED/COMMENTED/Re-review necessária] | [Não confirmado/Aprovado/Aprovado com ressalva/Reprovado/Bloqueado] | [0 ou descrição] | [Passou/Falhou/Em execução/Não localizado] | [Ação + responsável + prazo] |
+
+#### Critério para encerrar a checagem
+
+- [ ] Todos os PRs abertos foram revisados quanto ao estado, milestone e SHA atual.
+- [ ] Os novos commits foram identificados por comparação de SHA.
+- [ ] Para cada novo commit, foi verificado se a review técnica e a aprovação de QA ainda cobrem o conteúdo atual.
+- [ ] Reviews faltantes, decisões de QA, comentários e conversas pendentes foram listados.
+- [ ] CI foi conferido no HEAD atual dos PRs candidatos a merge.
+- [ ] Bloqueios têm próximo passo e responsável.
+- [ ] A ordem sugerida foi preservada ou a justificativa da alteração foi registrada.
