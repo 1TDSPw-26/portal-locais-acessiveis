@@ -65,11 +65,12 @@ function Cadastro() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10" aria-labelledby="titulo-cadastro">
+    <section className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10 box-border overflow-x-hidden" aria-labelledby="titulo-cadastro">
       <h2 id="titulo-cadastro" className="text-2xl font-bold">Cadastrar local</h2>
       <p className="mt-2">Todos os campos são obrigatórios.</p>
       <p className="mt-2 text-slate-700">Preencha os dados para cadastrar um local.</p>
-      <form noValidate onSubmit={enviar} className="mt-6 space-y-5">
+      
+      <form noValidate onSubmit={enviar} className="mt-6 space-y-5 w-full box-border">
         {campos.map((campo) => {
           const erro = erros[campo.nome]
           const propriedades = {
@@ -81,23 +82,36 @@ function Cadastro() {
             onBlur: () => validarCampo(campo.nome),
             'aria-invalid': erro ? true : undefined,
             'aria-describedby': erro ? `${campo.nome}-erro` : undefined,
-            className: `mt-1 block w-full rounded border p-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${erro ? 'border-red-700' : 'border-slate-500'}`,
+            className: `mt-1 block w-full rounded border p-3 text-slate-900 box-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary ${erro ? 'border-red-700' : 'border-slate-500'}`,
           }
           return (
-            <div key={campo.nome}>
+            <div key={campo.nome} className="w-full box-border">
               <label htmlFor={campo.nome} className="block font-semibold">{campo.rotulo}</label>
               {campo.nome === 'descricao' ? <textarea {...propriedades} rows={4} /> : <input {...propriedades} type="text" />}
-              <p id={`${campo.nome}-erro`} aria-live="polite" className="mt-1 text-sm text-red-800">{erro}</p>
+              <p id={`${campo.nome}-erro`} aria-live="polite" className="mt-1 text-sm text-red-800 break-words">{erro}</p>
             </div>
           )
         })}
-        <RecursosAcessibilidade
-          selecionados={dados.acessibilidades}
-          onChange={alterarAcessibilidades}
-        />
-        <button type="submit" className="rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary">Validar dados</button>
-        <p role="status" className={statusConfirmado ? 'rounded-md border border-green-200 bg-green-50 px-4 py-3 font-semibold text-green-800' : 'text-slate-800'}>{status}</p>
+
+        <div className="w-full box-border">
+          <RecursosAcessibilidade
+            selecionados={dados.acessibilidades}
+            onChange={alterarAcessibilidades}
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="w-full sm:w-auto rounded bg-brand-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary cursor-pointer"
+        >
+          Validar dados
+        </button>
+
+        <p role="status" className={`break-words ${statusConfirmado ? 'rounded-md border border-green-200 bg-green-50 px-4 py-3 font-semibold text-green-800' : 'text-slate-800'}`}>
+          {status}
+        </p>
       </form>
+
       <ConfirmDialog
         aberto={cadastroPendente !== null}
         titulo="Confirmar cadastro"
@@ -116,7 +130,7 @@ function Cadastro() {
           }
         }}
       >
-        <p>
+        <p className="break-words">
           Confirme o cadastro de <strong>{cadastroPendente?.nome}</strong>.
           Você poderá revisar os dados antes da integração com o serviço.
         </p>
