@@ -113,3 +113,13 @@ Depois:
 
 Um bloqueio aceito gera replanejamento. Ele não produz nota integral automática.
 
+## Parte F — conflito entre PRs e proteção da milestone CP3
+
+Para a integração atual, consulte o [Controle de integração CP3](../controle-integracao-cp3.md). Ele identifica PRs que compartilham arquivos, pré-requisitos e a ordem sugerida. A lista é um retrato da consulta realizada em 26/10/2026 e deve ser atualizada/revalidada antes de cada integração.
+
+- Confira a milestone da **Issue vinculada** ao PR; não classifique apenas pelo título ou pela branch.
+- **PR fora da milestone CP3:** QA ou Tech Lead pode coordenar uma correção na branch do PR, desde que tenha permissão, combine a alteração com o responsável, mantenha o escopo, registre o motivo e execute os testes.
+- **PR vinculado a uma Issue da milestone CP3:** QA e Tech Lead não devem editar nem enviar commits à branch do PR. Registre comentários específicos ou use **Request changes**; o autor deve implementar a correção e solicitar nova revisão.
+- Nunca faça push direto em `develop`, não use bypass de proteção e não finalize merges localmente com `git flow ... finish`.
+- Após resolver um conflito ou integrar uma dependência, execute novamente lint, build e testes relacionados. Se os arquivos ou o comportamento mudaram depois da aprovação, solicite nova revisão e novo resultado de QA.
+- Se um PR alterar um arquivo fora do escopo da Issue — especialmente configuração de CI — não descarte a mudança silenciosamente. Registre a dúvida no PR e peça ao autor uma justificativa ou remoção.
