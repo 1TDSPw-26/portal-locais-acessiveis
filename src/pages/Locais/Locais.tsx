@@ -4,6 +4,7 @@ import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import Paginacao from '../../components/Paginacao/Paginacao'
 import { excluirLocal, listarLocais } from '../../services/locaisService'
 import LocalCard from './LocalCard'
+import EstadoVazio from '../../components/EstadoVazio/EstadoVazio'
 
 const ITENS_POR_PAGINA = 6
 const TODAS = ''
@@ -21,6 +22,16 @@ function normalizar(texto: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+}
+
+function montarMensagemSemResultado(busca: string, categoria: string): string {
+  if (busca && categoria !== TODAS) {
+    return `Não encontramos locais da categoria "${categoria}" para "${busca}". Tente outro termo ou escolha outra categoria.`
+  }
+  if (busca) {
+    return `Não encontramos locais para "${busca}". Confira o texto ou tente um termo mais curto.`
+  }
+  return `Não há locais na categoria "${categoria}". Escolha outra categoria ou limpe os filtros.`
 }
 
 function Locais() {
@@ -202,23 +213,24 @@ function Locais() {
             aoMudarPagina={setPaginaAtual}
           />
         </>
-      ) : (
-        <div className="mt-4">
-          <p className="text-gray-700">
-            {filtroAtivo
-              ? 'Nenhum local corresponde aos filtros escolhidos.'
-              : 'Nenhum local cadastrado ainda.'}
-          </p>
-          {filtroAtivo && (
-            <button
-              type="button"
-              onClick={limparFiltros}
-              className="text-brand-primary mt-2 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              Limpar filtros
-            </button>
-          )}
-        </div>
+            ) : filtroAtivo ? (
+              <EstadoVazio
+                titulo="Nenhum local encontrado"
+                mensagem={montarMensagemSemResultado(busca.trim(), categoria)}
+              >
+                <button
+                  type="button"
+                  onClick={limparFiltros}
+                  className="text-brand-primary mt-4 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+                >
+                  Limpar filtros
+                </button>
+              </EstadoVazio>
+            ) : (
+              <EstadoVazio
+                titulo="Nenhum local cadastrado ainda."
+                mensagem="Quando um local for cadastrado, ele aparecerá aqui."
+              />
       )}
 
       <ConfirmDialog
