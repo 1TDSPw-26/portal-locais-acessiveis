@@ -4,6 +4,8 @@
 
 Transformar necessidades em demandas executáveis, revisar a solução técnica e integrar somente o que foi aprovado.
 
+> Para a rodada atual de integração, consulte também [Controle de integração CP3](../controle-integracao-cp3.md). A ordem ali registrada é uma proposta operacional baseada no estado consultado em 26/10/2026; revalide o estado do GitHub antes de cada merge.
+
 ## Parte A — refinar uma demanda
 
 ### Passo 1 — partir da necessidade aprovada
@@ -64,7 +66,7 @@ No Pull Request, confirme:
 
 ### Passo 2 — conferir o CI
 
-O check `lint-build-test` deve estar verde. Se estiver vermelho, o Pull Request volta ao autor antes da revisão funcional.
+O check `lint-build-test` deve estar verde na execução referente ao commit mais recente. Se estiver vermelho, o Pull Request volta ao autor antes da revisão funcional. Uma execução verde anterior não valida commits posteriores nem substitui o reteste depois de integrar mudanças de outros PRs.
 
 ### Passo 3 — revisar arquivos
 
@@ -139,6 +141,20 @@ Se o autor enviou commits depois das aprovações, exija nova revisão. Aprovaç
 2. Confirme Status `Concluída` no Project.
 3. Confirme que a branch remota foi removida.
 4. Se `Closes #NUMERO` não encerrou a Issue, relacione o Pull Request e encerre manualmente com justificativa.
+
+## Parte D — integrar uma sequência de PRs
+
+Quando vários PRs modificam o mesmo arquivo, não escolha a ordem somente pela data de criação. Use o [controle de integração CP3](../controle-integracao-cp3.md), confira as dependências e integre um PR por vez.
+
+Depois de cada merge:
+
+1. atualize a referência local/remota de `develop`;
+2. confira novamente os PRs que ainda aguardam integração;
+3. solicite ao autor a atualização da branch afetada quando necessário;
+4. repita lint, build e os testes relacionados na combinação resultante;
+5. confirme que os critérios e as aprovações continuam válidos.
+
+**Regra de autoria na rodada CP3:** PRs cuja Issue vinculada pertence à milestone CP3 são protegidos contra alterações de código feitas diretamente por QA ou Tech Lead. QA e Tech Lead podem revisar, registrar evidências, comentar e solicitar mudanças; o autor/desenvolvedor responsável deve aplicar as correções. Um PR fora da milestone CP3 pode receber correções coordenadas por QA/Tech Lead, na própria branch do PR, com o motivo registrado e sem contornar revisão ou CI. Em ambos os casos, é proibido fazer push direto em `develop`.
 
 ## Tech Lead autor da demanda
 
