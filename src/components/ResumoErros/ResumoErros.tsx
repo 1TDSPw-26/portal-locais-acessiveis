@@ -15,7 +15,7 @@ export default function ResumoErros({ erros, referencias }: ResumoErrosProps) {
   const tituloId = useId()
 
   // só mostra erros que apontam para um campo existente
-  const errosValidos = erros.filter((erro) => erro.campo in referencias)
+    const errosValidos = erros.filter((erro) => Object.hasOwn(referencias, erro.campo))
 
   if (errosValidos.length === 0) return null
 
