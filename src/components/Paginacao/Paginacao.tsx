@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 type PropriedadesPaginacao = {
   paginaAtual: number
   totalPaginas: number
@@ -9,16 +11,27 @@ export default function Paginacao({
   totalPaginas,
   aoMudarPagina,
 }: PropriedadesPaginacao) {
+  const paginaAtualRef = useRef<HTMLButtonElement>(null)
+  const trocouPagina = useRef(false)
+
+  useEffect(() => {
+    if (trocouPagina.current) {
+      paginaAtualRef.current?.focus()
+      trocouPagina.current = false
+    }
+  }, [paginaAtual])
+
   if (totalPaginas <= 1) {
     return null
   }
 
-  const irParaPagina = (pagina: number) => {
+  function irParaPagina(pagina: number) {
     if (
       pagina >= 1 &&
       pagina <= totalPaginas &&
       pagina !== paginaAtual
     ) {
+      trocouPagina.current = true
       aoMudarPagina(pagina)
     }
   }
@@ -39,6 +52,7 @@ export default function Paginacao({
       </button>
 
       <div
+        role="group"
         className="flex flex-wrap items-center gap-2"
         aria-label="Páginas disponíveis"
       >
@@ -49,9 +63,14 @@ export default function Paginacao({
           return (
             <button
               key={pagina}
+              ref={ehPaginaAtual ? paginaAtualRef : undefined}
               type="button"
               onClick={() => irParaPagina(pagina)}
-              aria-label={`Ir para a página ${pagina}`}
+              aria-label={
+                ehPaginaAtual
+                  ? `Página ${pagina}, atual`
+                  : `Ir para a página ${pagina}`
+              }
               aria-current={
                 ehPaginaAtual ? 'page' : undefined
               }
