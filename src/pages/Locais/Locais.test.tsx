@@ -1,3 +1,4 @@
+
 import { describe, expect, it } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -13,6 +14,18 @@ function renderLocais() {
   )
 }
 
+async function buscarLocal(
+  user: ReturnType<typeof userEvent.setup>,
+  nome: string,
+) {
+  await user.type(
+    screen.getByRole('searchbox', {
+      name: 'Buscar por nome, categoria ou endereço',
+    }),
+    nome,
+  )
+}
+
 function nomesNaLista() {
   return screen
     .queryAllByRole('heading', { level: 3 })
@@ -23,6 +36,8 @@ describe('Página Locais — exclusão com confirmação', () => {
   it('pede confirmação e não exclui ao cancelar', async () => {
     const user = userEvent.setup()
     renderLocais()
+
+    await buscarLocal(user, 'Parque Municipal')
 
     await user.click(
       screen.getByRole('button', { name: 'Excluir Parque Municipal' }),
@@ -42,9 +57,12 @@ describe('Página Locais — exclusão com confirmação', () => {
     const user = userEvent.setup()
     renderLocais()
 
+    await buscarLocal(user, 'Parque Municipal')
+
     await user.click(
       screen.getByRole('button', { name: 'Excluir Parque Municipal' }),
     )
+
     await user.click(
       within(screen.getByRole('dialog')).getByRole('button', {
         name: 'Excluir',
@@ -56,7 +74,7 @@ describe('Página Locais — exclusão com confirmação', () => {
     expect(
       screen.getByText('Local "Parque Municipal" excluído com sucesso.'),
     ).toBeInTheDocument()
-    expect(screen.getByText('17 locais encontrados')).toBeInTheDocument()
+    expect(listarLocais()).toHaveLength(17)
     expect(
       screen.getByRole('heading', {
         level: 1,
@@ -70,14 +88,19 @@ describe('Página Locais — exclusão com confirmação', () => {
     const user = userEvent.setup()
     renderLocais()
 
+    await buscarLocal(user, 'Biblioteca Municipal')
+
     screen
       .getByRole('button', { name: 'Excluir Biblioteca Municipal' })
       .focus()
+
     await user.keyboard('{Enter}')
 
     expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+
     await user.tab()
     expect(screen.getByRole('button', { name: 'Excluir' })).toHaveFocus()
+
     await user.keyboard('{Enter}')
 
     expect(nomesNaLista()).not.toContain('Biblioteca Municipal')
@@ -87,9 +110,12 @@ describe('Página Locais — exclusão com confirmação', () => {
     const user = userEvent.setup()
     renderLocais()
 
+    await buscarLocal(user, 'Parque Municipal')
+
     await user.click(
       screen.getByRole('button', { name: 'Excluir Parque Municipal' }),
     )
+
     excluirLocal(4)
 
     await user.click(
@@ -109,5 +135,25 @@ describe('Página Locais — exclusão com confirmação', () => {
     expect(
       screen.getByText('Nenhum local cadastrado ainda.'),
     ).toBeInTheDocument()
+  })
+
+  it('exibe os locais em ordem alfabética após a busca', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.type(
+      screen.getByRole('searchbox', {
+        name: 'Buscar por nome, categoria ou endereço',
+      }),
+      'a',
+    )
+
+    const nomes = nomesNaLista().map((nome) => nome ?? '')
+
+    expect(nomes).toEqual(
+      [...nomes].sort((a, b) =>
+        a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }),
+      ),
+    )
   })
 })
