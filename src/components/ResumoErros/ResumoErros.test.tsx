@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { useRef } from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import ResumoErros from './ResumoErros'
 import type { ErroFormulario } from './ResumoErros'
 
@@ -58,5 +59,35 @@ describe('ResumoErros', () => {
   it('ignora erro de campo que não existe', () => {
     render(<Formulario erros={[{ campo: 'cpf', mensagem: 'CPF inválido' }]} />)
     expect(screen.queryByRole('button')).toBeNull()
+  })
+
+  it('ignora chave herdada que não é um campo do formulário', () => {
+    render(<Formulario erros={[{ campo: 'toString', mensagem: 'Erro inválido' }]} />)
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('heading')).toBeNull()
+  })
+
+  it.each([
+    ['Enter', '{Enter}'],
+    ['Espaço', ' '],
+  ])('ativa o erro com %s e foca somente o campo correspondente', async (_nome, tecla) => {
+    const user = userEvent.setup()
+    render(
+      <Formulario
+        erros={[
+          { campo: 'nome', mensagem: 'Informe o nome' },
+          { campo: 'email', mensagem: 'E-mail inválido' },
+        ]}
+      />,
+    )
+
+    await user.tab()
+    await user.tab()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'E-mail inválido' }))
+
+    await user.keyboard(tecla)
+
+    expect(document.activeElement).toBe(screen.getByLabelText('E-mail'))
+    expect(document.activeElement).not.toBe(screen.getByLabelText('Nome'))
   })
 })
