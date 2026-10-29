@@ -4,6 +4,7 @@ import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import Paginacao from '../../components/Paginacao/Paginacao'
 import { excluirLocal, listarLocais } from '../../services/locaisService'
 import LocalCard from './LocalCard'
+import { ordenarPorNome } from './filtros'
 
 const ITENS_POR_PAGINA = 6
 const TODAS = ''
@@ -38,14 +39,16 @@ function Locais() {
   )].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
   const termo = normalizar(busca.trim())
-  const locaisFiltrados = locais.filter((local) => {
-    const correspondeCategoria =
-      categoria === TODAS || local.categoria === categoria
-    const textoLocal = normalizar(
-      `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
-    )
-    return correspondeCategoria && textoLocal.includes(termo)
-  })
+  const locaisFiltrados = ordenarPorNome(
+    locais.filter((local) => {
+      const correspondeCategoria =
+        categoria === TODAS || local.categoria === categoria
+      const textoLocal = normalizar(
+        `${local.nome} ${local.categoria} ${local.endereco} ${local.descricao}`,
+      )
+      return correspondeCategoria && textoLocal.includes(termo)
+    }),
+  )
 
   const filtroAtivo = termo !== '' || categoria !== TODAS
   const totalPaginas = Math.max(
@@ -124,11 +127,10 @@ function Locais() {
       <div role="status" className="mt-4 empty:hidden">
         {aviso && (
           <p
-            className={`rounded-md border px-4 py-3 font-bold ${
-              aviso.tipo === 'sucesso'
+            className={`rounded-md border px-4 py-3 font-bold ${aviso.tipo === 'sucesso'
                 ? 'border-green-700 bg-green-50 text-green-900'
                 : 'border-red-700 bg-red-50 text-red-900'
-            }`}
+              }`}
           >
             {aviso.texto}
           </p>

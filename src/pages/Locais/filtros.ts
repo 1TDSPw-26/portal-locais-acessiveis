@@ -1,3 +1,4 @@
+
 import type { Local } from '../../types/Local'
 
 export function obterCategorias(locais: Local[]): string[] {
@@ -8,4 +9,12 @@ export function obterCategorias(locais: Local[]): string[] {
 // O valor vazio representa todas as categorias.
 export function filtrarPorCategoria(locais: Local[], categoria: string): Local[] {
   return locais.filter((local) => !categoria || local.categoria === categoria)
+}
+
+export function ordenarPorNome(locais: Local[]): Local[] {
+  return [...locais].sort((a, b) =>
+    a.nome.localeCompare(b.nome, 'pt-BR', {
+      sensitivity: 'base',
+    }),
+  )
 }
