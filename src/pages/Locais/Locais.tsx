@@ -29,12 +29,14 @@ function Locais() {
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [localParaExcluir, setLocalParaExcluir] = useState<Local | null>(null)
   const [aviso, setAviso] = useState<Aviso | null>(null)
+  const [retrySolicitado, setRetrySolicitado] = useState(false)
   const buscaRef = useRef<HTMLInputElement>(null)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
-  const categorias = [...new Set(
-    locais.map((local) => local.categoria),
-  )].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  const categorias = [...new Set([
+    ...locais.map((local) => local.categoria),
+    ...(categoria ? [categoria] : []),
+  ])].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 
   const termo = normalizar(busca.trim())
   const locaisFiltrados = locais.filter((local) => {
@@ -57,6 +59,15 @@ function Locais() {
   useEffect(() => {
     if (aviso) tituloRef.current?.focus()
   }, [aviso])
+
+  useEffect(() => {
+    if (retrySolicitado && !carregando && !erro) tituloRef.current?.focus()
+  }, [retrySolicitado, carregando, erro])
+
+  function tentarNovamente() {
+    setRetrySolicitado(true)
+    recarregar()
+  }
 
   function mudarBusca(valor: string) {
     setBusca(valor)
@@ -113,6 +124,9 @@ function Locais() {
       </p>
 
       <div role="status" className="mt-4 empty:hidden">
+        {retrySolicitado && !carregando && !erro && (
+          <p>Locais carregados com sucesso.</p>
+        )}
         {aviso && (
           <p
             className={`rounded-md border px-4 py-3 font-bold ${
@@ -169,7 +183,7 @@ function Locais() {
           <EstadoErro
             titulo="Erro ao carregar locais"
             mensagem={erro}
-            aoTentarNovamente={recarregar}
+            aoTentarNovamente={tentarNovamente}
             tentandoNovamente={carregando}
           />
         </div>

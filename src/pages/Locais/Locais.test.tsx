@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Locais from './Locais'
@@ -148,19 +148,28 @@ describe('Página Locais — nova tentativa de carregamento', () => {
     expect(listarSpy).toHaveBeenCalledTimes(2)
   })
 
-  it('desabilita o botão enquanto tenta carregar novamente', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(locaisService, 'listarLocais').mockImplementation(() => {
-      throw new Error('Falha no carregamento')
-    })
-
+  it('desabilita o botão e bloqueia tentativas duplicadas durante o retry', async () => {
+    const listarSpy = vi.spyOn(locaisService, 'listarLocais')
+      .mockImplementation(() => {
+        throw new Error('Falha no carregamento')
+      })
     renderLocais()
-    const botao = screen.getByRole('button', { name: 'Tentar novamente' })
-    await user.click(botao)
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
 
-    expect(await screen.findByRole('button', {
-      name: 'Tentar novamente',
-    })).toBeEnabled()
+    const botaoPendente = screen.getByRole('button', {
+      name: 'Tentando novamente...',
+    })
+    expect(botaoPendente).toBeDisabled()
+    expect(screen.getByRole('alert')).toHaveAttribute('aria-busy', 'true')
+    fireEvent.click(botaoPendente)
+    expect(listarSpy).toHaveBeenCalledTimes(1)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', {
+        name: 'Tentar novamente',
+      })).toBeEnabled()
+    })
+    expect(listarSpy).toHaveBeenCalledTimes(2)
   })
 
   it('exibe estado vazio após uma tentativa bem-sucedida', async () => {
@@ -204,27 +213,58 @@ describe('Página Locais — nova tentativa de carregamento', () => {
     expect(screen.getByText('2 locais encontrados')).toBeInTheDocument()
   })
 
-  it('mantém a categoria selecionada após uma falha consecutiva', async () => {
+  it('preserva busca e categoria ativas após falha e recuperação', async () => {
     const user = userEvent.setup()
-    vi.spyOn(locaisService, 'listarLocais').mockImplementation(() => {
-      throw new Error('Falha no carregamento')
-    })
+    const locaisOriginais = locaisService.listarLocais()
+    const listarSpy = vi.spyOn(locaisService, 'listarLocais')
+      .mockReturnValueOnce(locaisOriginais)
+      .mockImplementationOnce(() => {
+        throw new Error('Falha ao atualizar')
+      })
+      .mockReturnValueOnce(locaisOriginais.filter((local) => local.id !== 4))
 
     renderLocais()
-    const categoria = screen.getByRole('combobox', { name: 'Categoria' })
-    expect(categoria).toHaveValue('')
-
     const busca = screen.getByRole('searchbox')
-    await user.type(busca, 'Biblioteca')
-    await user.click(screen.getByRole('button', { name: 'Tentar novamente' }))
+    const categoria = screen.getByRole('combobox', { name: 'Categoria' })
+    await user.type(busca, 'Parque')
+    await user.selectOptions(categoria, 'Lazer')
+    expect(categoria).toHaveValue('Lazer')
 
+    await user.click(screen.getByRole('button', { name: 'Excluir Parque Municipal' }))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', {
+      name: 'Excluir',
+    }))
+    await screen.findByRole('alert')
+    expect(busca).toHaveValue('Parque')
+    expect(categoria).toHaveValue('Lazer')
+    expect(within(categoria).getByRole('option', { name: 'Lazer' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Tentar novamente' }))
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument())
+    expect(busca).toHaveValue('Parque')
+    expect(categoria).toHaveValue('Lazer')
+    expect(listarSpy).toHaveBeenCalledTimes(3)
+  })
+
+  it('devolve foco ao título e anuncia sucesso após retry por teclado', async () => {
+    const user = userEvent.setup()
+    const locais = locaisService.listarLocais()
+    vi.spyOn(locaisService, 'listarLocais')
+      .mockImplementationOnce(() => {
+        throw new Error('Falha inicial')
+      })
+      .mockReturnValueOnce(locais)
+    renderLocais()
+    const botao = screen.getByRole('button', { name: 'Tentar novamente' })
+    botao.focus()
+    await user.keyboard('{Enter}')
     await waitFor(() => {
-      expect(screen.getByRole('button', {
-        name: 'Tentar novamente',
-      })).toBeEnabled()
+      expect(screen.getByRole('heading', {
+        level: 1,
+        name: 'Locais acessíveis',
+      })).toHaveFocus()
     })
-    expect(busca).toHaveValue('Biblioteca')
-    expect(categoria).toHaveValue('')
-    expect(screen.getByRole('alert')).toBeInTheDocument()
+    expect(screen.getByText('Locais carregados com sucesso.')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
