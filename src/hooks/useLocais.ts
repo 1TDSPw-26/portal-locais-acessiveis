@@ -1,29 +1,39 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Local } from '../types/Local'
 import { listarLocais } from '../services/locaisService'
 
-type EstadoLocais = { dados: Local[]; carregando: boolean; erro: string | null }
+type EstadoLocais = {
+  dados: Local[]
+  carregando: boolean
+  erro: string | null
+}
+
+const MENSAGEM_ERRO = 'Não foi possível carregar os locais. Tente novamente.'
+
+function carregarLocais(): EstadoLocais {
+  try {
+    return { dados: listarLocais(), carregando: false, erro: null }
+  } catch {
+    return { dados: [], carregando: false, erro: MENSAGEM_ERRO }
+  }
+}
 
 export function useLocais() {
-  const [estado, setEstado] = useState<EstadoLocais>({ dados: [], carregando: true, erro: null })
-  const [versao, setVersao] = useState(0)
-  const recarregar = useCallback(() => {
-    setEstado({ dados: [], carregando: true, erro: null })
-    setVersao((valor) => valor + 1)
-  }, [])
+  const [estado, setEstado] = useState<EstadoLocais>(carregarLocais)
+  const tentativaEmAndamento = useRef(false)
 
-  useEffect(() => {
-    let cancelado = false
-    try {
-      const dados = listarLocais()
-      // eslint-disable-next-line react/set-state-in-effect
-      if (!cancelado) setEstado({ dados, carregando: false, erro: null })
-    } catch {
-      // eslint-disable-next-line react/set-state-in-effect
-      if (!cancelado) setEstado({ dados: [], carregando: false, erro: 'Não foi possível carregar os locais. Tente novamente mais tarde.' })
-    }
-    return () => { cancelado = true }
-  }, [versao])
+  const recarregar = useCallback(() => {
+    if (tentativaEmAndamento.current) return
+    tentativaEmAndamento.current = true
+    setEstado((anterior) => ({ ...anterior, carregando: true }))
+
+    Promise.resolve()
+      .then(() => carregarLocais())
+      .then((resultado) => setEstado(resultado))
+      .finally(() => {
+        tentativaEmAndamento.current = false
+      })
+  }, [])
 
   return { ...estado, recarregar }
 }
