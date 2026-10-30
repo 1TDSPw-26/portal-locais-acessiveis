@@ -1,13 +1,7 @@
 import { renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { expect, it } from "vitest";
 import useFavoritos from "./useFavoritos";
 import { act } from "react";
-
-
-describe('useFavoritos', () => {
-    beforeEach(() => {
-        localStorage.clear
-    })
 
     const local = {
         id: 1,
@@ -57,4 +51,3 @@ describe('useFavoritos', () => {
     expect(salvos).toHaveLength(1)
     expect(salvos[0].nome).toBe('Biblioteca')
   })
-})
