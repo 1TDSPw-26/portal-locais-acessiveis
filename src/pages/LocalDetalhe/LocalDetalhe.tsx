@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { buscarLocalPorId } from './locaisMock'
+import { buscarLocalPorId } from '../../services/locaisService'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
 export default function LocalDetalhe() {
   const { id } = useParams()
-  const local = id ? buscarLocalPorId(id) : undefined
+  const idNumerico = id === undefined ? undefined : Number(id)
+  const local =
+    idNumerico !== undefined && Number.isSafeInteger(idNumerico)
+      ? buscarLocalPorId(idNumerico)
+      : undefined
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
@@ -25,12 +29,41 @@ export default function LocalDetalhe() {
     }
   }, [local])
 
+  const breadcrumb = (
+    <nav aria-label="Breadcrumb" className="mb-8">
+      <ol className="flex flex-wrap items-center gap-2 text-sm">
+        <li>
+          <Link
+            to="/"
+            className="text-gray-600 hover:text-brand-primary hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+          >
+            Início
+          </Link>
+        </li>
+        <li aria-hidden="true" className="text-gray-400">/</li>
+        <li>
+          <Link
+            to="/locais"
+            className="text-gray-600 hover:text-brand-primary hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+          >
+            Locais
+          </Link>
+        </li>
+        <li aria-hidden="true" className="text-gray-400">/</li>
+        <li aria-current="page" className="font-medium text-gray-900">
+          Detalhes do local
+        </li>
+      </ol>
+    </nav>
+  )
+
   if (!local) {
     return (
       <section
         aria-labelledby="titulo-local"
         className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
       >
+        {breadcrumb}
         <h2
           id="titulo-local"
           ref={tituloRef}
@@ -56,6 +89,7 @@ export default function LocalDetalhe() {
       aria-labelledby="titulo-local"
       className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
     >
+      {breadcrumb}
       <h2
         id="titulo-local"
         ref={tituloRef}
@@ -82,9 +116,9 @@ export default function LocalDetalhe() {
       <h3 className="mt-8 text-lg font-bold text-gray-900">
         Recursos de acessibilidade
       </h3>
-      {local.recursos.length > 0 ? (
+      {local.acessibilidades.length > 0 ? (
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          {local.recursos.map((recurso) => (
+          {local.acessibilidades.map((recurso: string) => (
             <li
               key={recurso}
               className="border-border-subtle flex items-center gap-2 rounded-md border px-3 py-2 text-gray-900"
