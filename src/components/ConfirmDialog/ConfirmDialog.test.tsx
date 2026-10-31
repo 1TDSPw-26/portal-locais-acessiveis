@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -7,7 +8,7 @@ function renderDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) 
   const onConfirmar = vi.fn()
   const onCancelar = vi.fn()
 
-  render(
+  const view = render(
     <ConfirmDialog
       aberto
       titulo="Excluir local?"
@@ -19,24 +20,103 @@ function renderDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) 
     </ConfirmDialog>,
   )
 
-  return { onConfirmar, onCancelar }
+  return { onConfirmar, onCancelar, ...view }
+}
+
+/**
+ * Componente auxiliar controlado: reproduz o uso real do diálogo, com um botão
+ * de abertura de verdade e o estado `aberto` alterado para abrir e fechar.
+ */
+function DialogControlado() {
+  const [aberto, setAberto] = useState(false)
+
+  return (
+    <>
+      <button type="button" onClick={() => setAberto(true)}>
+        Abrir confirmação
+      </button>
+      <ConfirmDialog
+        aberto={aberto}
+        titulo="Excluir local?"
+        onConfirmar={() => setAberto(false)}
+        onCancelar={() => setAberto(false)}
+      >
+        Esta ação não pode ser desfeita.
+      </ConfirmDialog>
+    </>
+  )
 }
 
 describe('ConfirmDialog', () => {
-  it('não renderiza nada quando fechado', () => {
+  it('não renderiza o diálogo nem disponibiliza controles quando fechado', () => {
     renderDialog({ aberto: false })
+
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('expõe nome e descrição acessíveis e foca em Cancelar', () => {
+  it('abre como modal e expõe nome e descrição acessíveis', () => {
     renderDialog()
     const dialog = screen.getByRole('dialog', { name: 'Excluir local?' })
 
+    expect(dialog).toHaveAttribute('aria-labelledby')
     expect(dialog).toHaveAccessibleDescription('Esta ação não pode ser desfeita.')
+    expect(dialog).toHaveAttribute('open')
+  })
+
+  it('move o foco inicial para Cancelar ao abrir o diálogo', () => {
+    renderDialog()
+
     expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
   })
 
-  it('chama onConfirmar e onCancelar pelos botões', async () => {
+  it('devolve o foco ao botão que abriu o diálogo ao fechá-lo pelo botão Cancelar', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
+
+    await user.click(abrir)
+    expect(screen.getByRole('dialog', { name: 'Excluir local?' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('devolve o foco ao botão que abriu o diálogo ao fechá-lo com Escape', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
+
+    await user.click(abrir)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('devolve o foco ao botão que abriu o diálogo ao confirmar a ação', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
+
+    await user.click(abrir)
+    await user.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('expõe os nomes acessíveis personalizados dos botões', () => {
+    renderDialog({ textoConfirmar: 'Remover local', textoCancelar: 'Manter local' })
+
+    expect(screen.getByRole('button', { name: 'Remover local' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Manter local' })).toBeVisible()
+  })
+
+  it('dispara confirmação e cancelamento uma única vez pelos botões', async () => {
     const user = userEvent.setup()
     const { onConfirmar, onCancelar } = renderDialog()
 
@@ -47,15 +127,41 @@ describe('ConfirmDialog', () => {
     expect(onCancelar).toHaveBeenCalledOnce()
   })
 
-  it('cancela com a tecla Esc (evento cancel do dialog)', () => {
+  it('cancela com a tecla Escape e impede o fechamento nativo', () => {
     const { onCancelar } = renderDialog()
-    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+    const dialog = screen.getByRole('dialog')
+    const evento = new Event('cancel', { cancelable: true })
+
+    fireEvent(dialog, evento)
+
+    expect(evento.defaultPrevented).toBe(true)
     expect(onCancelar).toHaveBeenCalledOnce()
   })
 
-  it('desabilita os botões enquanto processa', () => {
-    renderDialog({ processando: true })
-    expect(screen.getByRole('button', { name: 'Excluindo…' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+  it('cancela ao clicar no fundo do diálogo', () => {
+    const { onCancelar } = renderDialog()
+    const dialog = screen.getByRole('dialog')
+
+    fireEvent.click(dialog)
+
+    expect(onCancelar).toHaveBeenCalledOnce()
+  })
+
+  it('não permite confirmação ou cancelamento durante o processamento', async () => {
+    const user = userEvent.setup()
+    const { onConfirmar, onCancelar } = renderDialog({ processando: true })
+
+    const confirmar = screen.getByRole('button', { name: 'Excluindo…' })
+    const cancelar = screen.getByRole('button', { name: 'Cancelar' })
+
+    expect(confirmar).toBeDisabled()
+    expect(cancelar).toBeDisabled()
+
+    await user.click(confirmar)
+    await user.click(cancelar)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+
+    expect(onConfirmar).not.toHaveBeenCalled()
+    expect(onCancelar).not.toHaveBeenCalled()
   })
 })

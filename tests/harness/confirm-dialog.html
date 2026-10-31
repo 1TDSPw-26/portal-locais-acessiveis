@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harness do ConfirmDialog</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!--
+      Página de apoio apenas para os testes E2E: monta o ConfirmDialog real,
+      sem rotas, páginas do portal nem locaisService. Não faz parte do build.
+    -->
+    <script type="module">
+      import { createElement as h, useState } from 'react'
+      import { createRoot } from 'react-dom/client'
+      import ConfirmDialog from '/src/components/ConfirmDialog/ConfirmDialog.tsx'
+      import '/src/index.css'
+
+      function Harness() {
+        const [aberto, setAberto] = useState(false)
+        const [confirmacoes, setConfirmacoes] = useState(0)
+        const [cancelamentos, setCancelamentos] = useState(0)
+
+        return h(
+          'main',
+          null,
+          h('button', { type: 'button', onClick: () => setAberto(true) }, 'Abrir confirmação'),
+          h('p', { role: 'status' }, `Confirmações: ${confirmacoes} | Cancelamentos: ${cancelamentos}`),
+          h(
+            ConfirmDialog,
+            {
+              aberto,
+              titulo: 'Excluir local?',
+              onConfirmar: () => {
+                setConfirmacoes((total) => total + 1)
+                setAberto(false)
+              },
+              onCancelar: () => {
+                setCancelamentos((total) => total + 1)
+                setAberto(false)
+              },
+            },
+            'Esta ação não pode ser desfeita.',
+          ),
+        )
+      }
+
+      createRoot(document.getElementById('root')).render(h(Harness))
+    </script>
+  </body>
+</html>
