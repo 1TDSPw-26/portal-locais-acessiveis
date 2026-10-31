@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -19,7 +20,31 @@ function renderDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) 
     </ConfirmDialog>,
   )
 
-  return { onConfirmar, onCancelar, unmount: view.unmount }
+  return { onConfirmar, onCancelar, ...view }
+}
+
+/**
+ * Componente auxiliar controlado: reproduz o uso real do diálogo, com um botão
+ * de abertura de verdade e o estado `aberto` alterado para abrir e fechar.
+ */
+function DialogControlado() {
+  const [aberto, setAberto] = useState(false)
+
+  return (
+    <>
+      <button type="button" onClick={() => setAberto(true)}>
+        Abrir confirmação
+      </button>
+      <ConfirmDialog
+        aberto={aberto}
+        titulo="Excluir local?"
+        onConfirmar={() => setAberto(false)}
+        onCancelar={() => setAberto(false)}
+      >
+        Esta ação não pode ser desfeita.
+      </ConfirmDialog>
+    </>
+  )
 }
 
 describe('ConfirmDialog', () => {
@@ -39,22 +64,49 @@ describe('ConfirmDialog', () => {
     expect(dialog).toHaveAttribute('open')
   })
 
-  it('move o foco inicial para Cancelar e retorna o foco ao elemento de abertura', async () => {
-    const user = userEvent.setup()
-    const abrir = document.createElement('button')
-    abrir.type = 'button'
-    abrir.textContent = 'Abrir confirmação'
-    document.body.append(abrir)
-    abrir.focus()
+  it('move o foco inicial para Cancelar ao abrir o diálogo', () => {
+    renderDialog()
 
-    const { unmount } = renderDialog()
     expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+  })
 
-    unmount()
-    expect(abrir).toHaveFocus()
+  it('devolve o foco ao botão que abriu o diálogo ao fechá-lo pelo botão Cancelar', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
 
     await user.click(abrir)
-    abrir.remove()
+    expect(screen.getByRole('dialog', { name: 'Excluir local?' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('devolve o foco ao botão que abriu o diálogo ao fechá-lo com Escape', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
+
+    await user.click(abrir)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('devolve o foco ao botão que abriu o diálogo ao confirmar a ação', async () => {
+    const user = userEvent.setup()
+    render(<DialogControlado />)
+    const abrir = screen.getByRole('button', { name: 'Abrir confirmação' })
+
+    await user.click(abrir)
+    await user.click(screen.getByRole('button', { name: 'Excluir' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
   })
 
   it('expõe os nomes acessíveis personalizados dos botões', () => {
