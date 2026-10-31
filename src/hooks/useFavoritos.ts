@@ -1,3 +1,4 @@
+import type { Local } from '../types/Local'
 import { useMemo, useState, useSyncExternalStore } from 'react'
 import {
   assinarFavoritos,
@@ -9,7 +10,7 @@ import {
 
 const snapshotServidor = () => null
 
-export function useFavoritos() {
+export default function useFavoritos() {
   const snapshot = useSyncExternalStore(
     assinarFavoritos,
     lerSnapshotFavoritos,
@@ -18,9 +19,9 @@ export function useFavoritos() {
   const favoritos = useMemo(() => lerFavoritos(snapshot), [snapshot])
   const [erro, setErro] = useState<string | null>(null)
 
-  function atualizar(id: number, acao: 'alternar' | 'remover'): boolean {
+  function atualizar(valor: number | Local, acao: 'alternar' | 'remover' | 'adicionar'): boolean {
     try {
-      atualizarFavorito(id, acao)
+      atualizarFavorito(valor, acao)
       setErro(null)
       return true
     } catch {
@@ -31,8 +32,9 @@ export function useFavoritos() {
 
   return {
     favoritos,
-    ehFavorito: (id: number) => favoritos.includes(id),
-    alternarFavorito: (id: number) => atualizar(id, 'alternar'),
+    ehFavorito: (id: number) => favoritos.some((local) => local.id === id),
+    adicionarFavorito: (local: Local) => atualizar(local, 'adicionar'),
+    alternarFavorito: (local: Local) => atualizar(local, 'alternar'),
     removerFavorito: (id: number) => atualizar(id, 'remover'),
     erro: snapshot === FAVORITOS_INDISPONIVEIS
       ? 'Não foi possível acessar os favoritos neste navegador.'

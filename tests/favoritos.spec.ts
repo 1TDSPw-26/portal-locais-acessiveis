@@ -1,13 +1,14 @@
 import { expect, test } from '@playwright/test'
+import { locais } from '../src/components/Dados/Locais'
 
-const CHAVE_FAVORITOS = 'portal-locais-acessiveis:favoritos:v1'
+const CHAVE_FAVORITOS = 'favoritos'
 
 test('consulta favoritos pela navegação e remove com teclado sem perder o estado', async ({ page }, testInfo) => {
   await page.goto('/')
   await page.evaluate((chave) => {
     localStorage.clear()
-    localStorage.setItem(chave, '[1, 4, 999999]')
-  }, CHAVE_FAVORITOS)
+    localStorage.setItem(chave.chave, JSON.stringify(chave.locais))
+  }, { chave: CHAVE_FAVORITOS, locais: [locais[0], locais[3], { ...locais[0], id: 999999 }] })
 
   const abrirMenu = page.getByRole('button', { name: 'Abrir menu' })
   if (await abrirMenu.isVisible()) await abrirMenu.click()
@@ -63,3 +64,25 @@ for (const [cenario, dados] of [
     await expect(page.getByRole('heading', { name: 'Nenhum favorito por aqui' })).toBeVisible()
   })
 }
+
+
+test('integra inclusão nos detalhes, consulta, recarga e remoção', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.clear())
+  await page.goto(`/locais/${locais[0]!.id}`)
+  const favoritar = page.getByRole('button', { name: 'Favoritar', exact: true })
+  await favoritar.click()
+  await expect(page.getByRole('button', { name: 'Desfavoritar', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.goto('/favoritos')
+  await expect(page.getByRole('heading', { level: 3, name: locais[0]!.nome })).toBeVisible()
+  await page.reload()
+  const remover = page.getByRole('button', { name: /Remover .+ dos favoritos/ })
+  await remover.focus()
+  await page.keyboard.press('Enter')
+  const titulo = page.getByRole('heading', { level: 1, name: 'Favoritos' })
+  await expect(titulo).toBeFocused()
+  await expect(titulo).toHaveCSS('outline-style', 'solid')
+  await expect(page.getByRole('heading', { name: 'Nenhum favorito por aqui' })).toBeVisible()
+  await page.goto(`/locais/${locais[0]!.id}`)
+  await expect(page.getByRole('button', { name: 'Favoritar', exact: true })).toHaveAttribute('aria-pressed', 'false')
+})

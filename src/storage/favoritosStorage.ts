@@ -1,4 +1,6 @@
-export const CHAVE_FAVORITOS = 'portal-locais-acessiveis:favoritos:v1'
+import type { Local } from '../types/Local'
+
+export const CHAVE_FAVORITOS = 'favoritos'
 export const FAVORITOS_INDISPONIVEIS = 'favoritos:indisponiveis'
 const EVENTO_FAVORITOS = 'favoritos-atualizados'
 
@@ -10,15 +12,24 @@ export function lerSnapshotFavoritos(): string | null {
   }
 }
 
-export function lerFavoritos(snapshot: string | null): number[] {
+function ehLocal(valor: unknown): valor is Local {
+  if (typeof valor !== 'object' || valor === null) return false
+  const local = valor as Record<string, unknown>
+  return typeof local.id === 'number' && Number.isSafeInteger(local.id) && local.id > 0 &&
+    ['nome', 'categoria', 'descricao', 'endereco'].every((campo) => typeof local[campo] === 'string') &&
+    Array.isArray(local.acessibilidades) && local.acessibilidades.every((item) => typeof item === 'string')
+}
+
+export function lerFavoritos(snapshot: string | null): Local[] {
   try {
     const dados: unknown = JSON.parse(snapshot ?? '[]')
     if (!Array.isArray(dados)) return []
-
-    return [...new Set(dados.filter(
-      (id): id is number =>
-        typeof id === 'number' && Number.isSafeInteger(id) && id > 0,
-    ))]
+    const ids = new Set<number>()
+    return dados.filter((local): local is Local => {
+      if (!ehLocal(local) || ids.has(local.id)) return false
+      ids.add(local.id)
+      return true
+    })
   } catch {
     return []
   }
@@ -38,9 +49,10 @@ export function assinarFavoritos(aoAtualizar: () => void): () => void {
 }
 
 export function atualizarFavorito(
-  id: number,
-  acao: 'alternar' | 'remover',
+  valor: number | Local,
+  acao: 'alternar' | 'remover' | 'adicionar',
 ): void {
+  const id = typeof valor === 'number' ? valor : valor.id
   if (!Number.isSafeInteger(id) || id <= 0) {
     throw new Error('Identificador de local inválido.')
   }
@@ -51,9 +63,17 @@ export function atualizarFavorito(
   }
 
   const atuais = lerFavoritos(snapshot)
-  const proximos = acao === 'remover' || atuais.includes(id)
-    ? atuais.filter((atual) => atual !== id)
-    : [...atuais, id]
+  if (acao === 'adicionar' && atuais.some((local) => local.id === id)) return
+
+  let proximos: Local[]
+  if (acao === 'remover' || atuais.some((local) => local.id === id)) {
+    proximos = atuais.filter((local) => local.id !== id)
+  } else {
+    if (typeof valor === 'number' || !ehLocal(valor)) {
+      throw new Error('Dados de local inválidos.')
+    }
+    proximos = [...atuais, valor]
+  }
 
   window.localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(proximos))
   window.dispatchEvent(new Event(EVENTO_FAVORITOS))

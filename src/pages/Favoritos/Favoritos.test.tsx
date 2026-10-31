@@ -16,7 +16,7 @@ function renderFavoritos() {
 describe('Página Favoritos', () => {
   it('mostra somente os locais salvos, com os dados do card reutilizado', async () => {
     const [primeiro, segundo, terceiro] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro.id, terceiro.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro, terceiro]))
     renderFavoritos()
 
     expect(await screen.findByRole('heading', { level: 3, name: primeiro.nome })).toBeInTheDocument()
@@ -38,7 +38,7 @@ describe('Página Favoritos', () => {
   it('remove pelo teclado, persiste e atualiza a lista sem sair da página', async () => {
     const user = userEvent.setup()
     const [primeiro, segundo] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro.id, segundo.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro, segundo]))
     const tela = renderFavoritos()
 
     const botao = await screen.findByRole('button', { name: `Remover ${primeiro.nome} dos favoritos` })
@@ -48,7 +48,7 @@ describe('Página Favoritos', () => {
     expect(screen.getByRole('heading', { level: 3, name: segundo.nome })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('1 local favorito disponível.')
     expect(screen.getByRole('heading', { level: 1, name: 'Favoritos' })).toHaveFocus()
-    expect(JSON.parse(localStorage.getItem(CHAVE_FAVORITOS)!)).toEqual([segundo.id])
+    expect(JSON.parse(localStorage.getItem(CHAVE_FAVORITOS)!)).toEqual([segundo])
 
     tela.unmount()
     renderFavoritos()
@@ -59,7 +59,7 @@ describe('Página Favoritos', () => {
   it('mostra o estado vazio após remover o último favorito', async () => {
     const user = userEvent.setup()
     const [local] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local]))
     renderFavoritos()
     await user.click(await screen.findByRole('button', { name: `Remover ${local.nome} dos favoritos` }))
     expect(screen.getByRole('heading', { name: 'Nenhum favorito por aqui' })).toBeInTheDocument()
@@ -78,7 +78,7 @@ describe('Página Favoritos', () => {
 
   it('omite locais removidos e inexistentes preservando os favoritos disponíveis', async () => {
     const [primeiro, segundo] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro.id, segundo.id, 999999, primeiro.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([primeiro, segundo, { ...primeiro, id: 999999 }, primeiro]))
     excluirLocal(segundo.id)
     renderFavoritos()
 
@@ -90,7 +90,7 @@ describe('Página Favoritos', () => {
   })
 
   it('orienta a buscar locais quando todos os favoritos estão indisponíveis', async () => {
-    localStorage.setItem(CHAVE_FAVORITOS, '[999999]')
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([{ ...listarLocais()[0], id: 999999 }]))
     renderFavoritos()
     expect(await screen.findByRole('heading', { name: 'Nenhum favorito por aqui' })).toBeInTheDocument()
     expect(screen.getByText(/Alguns locais salvos não estão mais disponíveis/)).toBeInTheDocument()
@@ -100,7 +100,7 @@ describe('Página Favoritos', () => {
   it('mantém o card e informa a falha se não conseguir salvar a remoção', async () => {
     const user = userEvent.setup()
     const [local] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local]))
     renderFavoritos()
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('Sem espaço') })
 
@@ -112,7 +112,7 @@ describe('Página Favoritos', () => {
   it('permite tentar novamente quando os dados dos locais estão corrompidos', async () => {
     const user = userEvent.setup()
     const [local] = listarLocais()
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local.id]))
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([local]))
     localStorage.setItem(CHAVE_LOCAIS, '{')
     renderFavoritos()
 

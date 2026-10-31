@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import EstadoErro from '../../components/EstadoErro/EstadoErro'
 import Loading from '../../components/Loading/Loading'
 import LocalCard from '../../components/LocalCard/LocalCard'
-import { useFavoritos } from '../../hooks/useFavoritos'
+import useFavoritos from '../../hooks/useFavoritos'
 import { useLocais } from '../../hooks/useLocais'
 
 const classeAcao =
@@ -13,7 +13,7 @@ export default function Favoritos() {
   const { favoritos, removerFavorito, erro: erroFavoritos } = useFavoritos()
   const { dados: locais, carregando, erro, recarregar } = useLocais()
   const tituloRef = useRef<HTMLHeadingElement>(null)
-  const locaisFavoritos = locais.filter((local) => favoritos.includes(local.id))
+  const locaisFavoritos = locais.filter((local) => favoritos.some((favorito) => favorito.id === local.id))
   const indisponiveis = favoritos.length - locaisFavoritos.length
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Favoritos() {
         id="titulo-favoritos"
         ref={tituloRef}
         tabIndex={-1}
-        className="text-3xl font-bold text-gray-900 focus:outline-none"
+        className="text-3xl font-bold text-gray-900 rounded-sm focus:outline-2 focus:outline-offset-4 focus:outline-brand-primary"
       >
         Favoritos
       </h1>
