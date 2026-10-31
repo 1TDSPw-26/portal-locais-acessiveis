@@ -9,6 +9,7 @@ import Home from './routes/Home/index.tsx'
 import Locais from './pages/Locais/Locais.tsx'
 import Cadastro from './routes/Cadastro/index.tsx'
 import Sobre from './routes/Sobre/index.tsx'
+import Favoritos from './routes/Favoritos/index.tsx'
 
 import NotFound from './pages/NotFound/NotFound.tsx'
 import LocalDetalhe from './pages/LocalDetalhe/LocalDetalhe.tsx'
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: '/locais/:id',
         element: <LocalDetalhe />,
+      },
+      {
+        path: '/favoritos',
+        element: <Favoritos />,
       },
       {
         path: '/cadastro',
