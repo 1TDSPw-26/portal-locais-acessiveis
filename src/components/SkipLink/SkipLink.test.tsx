@@ -38,6 +38,6 @@ describe("SkipLink", () => {
     setup("id-inexistente");
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");
-    expect(screen.getByRole("link")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toBeInTheDocument();   
   });
 });
