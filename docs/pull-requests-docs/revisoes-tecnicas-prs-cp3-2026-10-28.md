@@ -1,202 +1,148 @@
-# Registro de revisões técnicas — PRs CP3
+# Registro de revisões técnicas e prontidão para integração — CP3
 
-**Data da rodada:** 28/10/2026  
+**Rodada de atualização:** 03/11/2026 (horário de Brasília)  
 **Branch de documentação:** `feature/133-controle-integracao-cp3`  
-**Repositório:** [portal-locais-acessiveis](https://github.com/1TDSPw-26/portal-locais-acessiveis)
+**Base consultada:** `develop` em `db7b8c653b0d7820edac7565265a7350ad75d2b6`  
+**Total consultado:** 28 PRs abertos
 
-> **Importante:** este documento registra análises técnicas e recomendações preparadas para publicação manual. Nenhuma das decisões abaixo foi enviada como review formal ao GitHub por meio desta rodada. Confira o HEAD, os comentários, as conversas, o CI e o status de QA diretamente no GitHub antes de agir. As recomendações valem para os commits identificados e devem ser reavaliadas se o código mudar.
+> Este documento registra uma fotografia do GitHub na data acima. Nenhum merge foi executado por esta análise. Aprovação técnica não substitui QA. O GitHub reportou `mergeable: true` para os 28 PRs consultados, mas vários estão divergentes/atrasados em relação a `develop`; mergeabilidade não significa prontidão. Antes de integrar, atualize a branch, confirme o HEAD, CI, reviews, conversas e decisão de QA.
 
-## 1. Resumo executivo
+## 1. Resultado executivo
 
-| PR | Issue | Recomendação da revisão | Principais ações |
-|---|---|---|---|
-| [#145 — página de favoritos](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/145) | [#128](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/128) | **Request changes** | Conciliar o contrato com #127; definir rota canônica; preservar foco visível. |
-| [#164 — notificações temporárias](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/164) | [#150](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/150) | **Request changes** | Separar semântica de status/alerta e usar anúncio assertivo para erro. |
-| [#165 — testes de ConfirmDialog](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/165) | [#148](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/148) | **Request changes** | Tornar os testes unitários independentes de Cadastro e validar o foco após fechar o diálogo. |
-| [#166 — testes E2E de exclusão](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/166) | [#149](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/149) | **Approve** | Confirmar/atualizar o checklist de isolamento de dados; os E2E citados não são executados pelo workflow de qualidade padrão. |
-| [#167 — resumo de filtros](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/167) | [#153](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/153) | **Approve** | Componente isolado, propriedades claras e testes adequados; integração à página não faz parte do escopo desta PR. |
-| [#168 — retry de carregamento](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/168) | [#130](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/130) | **Request changes** | Testar categoria ativa, estado pendente/bloqueio de tentativas concorrentes e foco após sucesso. |
-| [#170 — resumo acessível de erros](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/170) | [#158](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/158) | **Request changes** | Validar somente propriedades próprias do mapa de referências e testar ativação por Enter/Espaço. |
+- **28 PRs abertos, nenhum fechado ou integrado** na consulta.
+- **14 PRs com review formal mais recente APPROVED** e **14 com CHANGES_REQUESTED**.
+- **Nenhum PR pode ser declarado liberado para merge apenas com esta análise**, pois não foi localizada evidência suficiente de aprovação formal de QA para cada entrega.
+- **Candidatos técnicos mais fortes para a próxima etapa de integração:** #166, #167, #170, #175 e #177. São entregas isoladas, com review APPROVED no HEAD consultado, CI de qualidade e automação do Project concluídos com sucesso, e branches sem commits atrás de `develop`. Ainda exigem confirmação do QA e verificação de conversas.
+- #168, #171, #172 e #173 também receberam APPROVED e CI verde no HEAD atual, mas devem ser integradas em sequência coordenada por compartilharem áreas funcionais ou exigirem reteste de integração.
+- #120, #121, #114 e #116 estão muito atrás da base atual (37 commits em alguns casos); não devem ser integradas sem atualização/rebase e nova validação.
+- #122 tem falha no workflow de qualidade; #178 tem falha na automação do GitHub Project. Ambos permanecem bloqueados.
+- #174, PR desta documentação, tem um pedido de alteração documental ativo; os links internos foram corrigidos nesta branch nesta rodada, mas ainda é necessária nova revisão formal.
 
-As recomendações acima não equivalem a reviews formais nem a decisões de QA. As PRs #166 e #167 podem receber recomendação de aprovação técnica, mas continuam sujeitas ao processo de revisão e QA do projeto.
+### Decisão recomendada
 
-## 2. Registro por PR
+**Não realizar merge em lote.** Primeiro, encaminhar #166, #167, #170, #175 e #177 para confirmação explícita de QA. Após aprovação de QA, podem ser avaliadas individualmente para integração, começando pelos PRs isolados. Para os demais, respeitar os bloqueios e a sequência abaixo.
 
-### PR #145 — página de favoritos
+## 2. Estado atual de todos os PRs
 
-- **Branch:** `feature/128-pagina-favoritos`
-- **HEAD analisado:** `9d5f155346f508009f1b0129ca752dda733065c1`
-- **Recomendação:** **Request changes**
-- **CI consultado:** workflows disponíveis concluídos com sucesso no commit analisado.
-- **Escopo observado:** página de consulta/remoção de favoritos, hook e armazenamento, rota e testes de navegador.
+Todos os PRs abaixo estavam abertos, com base `develop`, sem draft e com `mergeable: true` na consulta. “Atraso” é o resultado de comparação da branch com a referência atual de `develop`; os valores podem mudar a cada atualização.
 
-#### Correções solicitadas
+| PR | Issue | Review formal mais recente | CI no HEAD consultado | Comparação com develop | Situação / próxima ação |
+|---|---|---|---|---|---|
+| [#111](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/111) | #75 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +5 / -2 | Atualizar documentação para refletir persistência real em localStorage e serviços/arquivos atuais; nova review após correção. |
+| [#114](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/114) | #63 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +3 / -37 | Descrição/roteiro não correspondem ao diff atual, que acrescenta teste de regressão; atualizar documentação e revalidar. |
+| [#116](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/116) | #71 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +1 / -37 | Descrição afirma React Hook Form/Zod, mas diff atual extrai utilitário e adaptador; corrigir documentação e roteiro do cadastro. |
+| [#119](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/119) | #86 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +4 / 0 | Home real da rota não recebe o título; corrigir componente/rota e teste via roteamento real. |
+| [#120](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/120) | #84 | **APPROVED** | Qualidade + Project: sucesso | +1 / -37 | Review positiva, mas branch muito atrasada; atualizar antes de integrar e repetir testes. Atualizar contagem de 9 testes e esclarecer que Vitest já está na base. |
+| [#121](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/121) | #85 | **APPROVED** | Qualidade: sucesso; Project: histórico com falhas/cancelamento | +2 / -37 | Base de testes aprovada, mas extremamente atrasada. Atualizar branch, resolver conflitos e revalidar scripts/dependências/coverage. |
+| [#122](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/122) | #59 | **CHANGES_REQUESTED** | Qualidade: **falha**; Project: sucesso | +8 / -12 | Build falha: campo obrigatório `avaliacao` ausente em 31 registros e no estado inicial `NovoLocal`. Corrigir contrato e produtores; CI verde obrigatório. |
+| [#135](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/135) | #125 | **APPROVED** | Qualidade + Project: sucesso | +1 / -12 | Tecnicamente aprovada; atualizar branch e integrar após #169, #168 e #178 conforme sequência da listagem. |
+| [#136](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/136) | #132 | **APPROVED** | Qualidade + Project: sucesso | +2 / -12 | Testes de detalhes aprovados; atualizar branch e coordenar antes de #171, que altera os mesmos arquivos. |
+| [#145](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/145) | #128 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +3 / -12 | Alinhar com #180, escolhido como implementação compartilhada; preservar retorno de sucesso/falha exigido pela página. Retestar integração. |
+| [#162](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/162) | #157 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +1 / -2 | Normalização recursiva de objetos/arrays internos ainda incompleta; adicionar testes e corrigir. |
+| [#164](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/164) | #150 | **CHANGES_REQUESTED** | Qualidade: sucesso; Project: histórico com falha | +1 / -2 | Aviso ainda usa `role=alert`; sucesso/aviso devem usar status/polite e erro alert/assertive. Corrigir testes. |
+| [#165](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/165) | #148 | **APPROVED** | Qualidade + Project: sucesso | +4 / -2 | Correções verificadas; suíte isolada e integração separada. Atualizar branch/revalidar por estar 2 commits atrás. |
+| [#166](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/166) | #149 | **APPROVED** | Qualidade + Project: sucesso | +2 / 0 | **Candidato técnico forte.** E2E de cancelamento, confirmação e falha executados em desktop/mobile; 6 casos reportados. Confirmar QA. |
+| [#167](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/167) | #153 | **APPROVED** | Qualidade + Project: sucesso | +1 / 0 | **Candidato técnico forte.** Componente isolado e testes aprovados. Confirmar QA; integração à página é separada. |
+| [#168](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/168) | #130 | **APPROVED** | Qualidade + Project: sucesso | +6 / 0 | Correções de retry, categoria, concorrência e foco confirmadas. Coordenar com #169, #173, #176 e #178 antes de integrar. |
+| [#169](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/169) | #123 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +3 / 0 | Faltam testes reais para limpar filtros/URL, voltar/avançar no histórico e preservar parâmetros desconhecidos. Também permanece `src/services/apagar.txt` no diff; esclarecer/remover. |
+| [#170](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/170) | #158 | **APPROVED** | Qualidade + Project: sucesso | +4 / 0 | **Candidato técnico forte.** Propriedade própria e teclado Enter/Espaço testados; confirmar QA. |
+| [#171](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/171) | #126 | **APPROVED** | Qualidade + Project: sucesso | +1 / 0 | Tecnicamente aprovada; coordenar com #136 e retestar Web Share/fallback após integração. |
+| [#172](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/172) | #138 | **APPROVED** | Qualidade + Project: sucesso | +2 / 0 | Responsividade do cadastro aprovada; integrar após resolver base/compatibilidade de #116 e #119. |
+| [#173](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/173) | #139 | **APPROVED** | Qualidade + Project: sucesso | +2 / 0 | Responsividade da listagem aprovada; coordenar depois das alterações funcionais em busca/filtros/retry/ordenação/estado vazio. |
+| [#174](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/174) | #133 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +8 / 0 | Corrigir links relativos dos tutoriais e caminho citado na descrição. Links corrigidos nesta branch; solicitar nova review e confirmar PR body atualizado. |
+| [#175](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/175) | #147 | **APPROVED** | Qualidade + Project: sucesso | +1 / 0 | **Candidato técnico forte.** Fixtures/helpers E2E aprovados; 10 casos desktop/mobile reportados. Preencher autoria que ainda contém `@usuario`; confirmar QA. |
+| [#176](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/176) | #137 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +2 / 0 | Justificar ou remover mudanças não relacionadas em `package-lock.json`; atualizar lista de arquivos e validar lockfile. |
+| [#177](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/177) | #152 | **APPROVED** | Qualidade + Project: sucesso | +1 / 0 | **Candidato técnico forte.** Componente isolado de fallback de armazenamento aprovado; confirmar QA e dependências de integração. |
+| [#178](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/178) | #124 | **CHANGES_REQUESTED** | Qualidade: sucesso; Project: **falha** | +2 / 0 | Substituir `Closes #NUMERO_DA_ISSUE` por `Closes #124`; revalidar automação. Compartilha arquivos de Locais com #168/#169/#173/#176/#135. |
+| [#179](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/179) | #160 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +2 / 0 | Diff altera paginação, mas Issue pede componente isolado `IndicadorPosicao`; entregar escopo correto ou formalizar mudança de escopo. |
+| [#180](https://github.com/1TDSPw-26/portal-locais-acessiveis/pull/180) | #127 | **CHANGES_REQUESTED** | Qualidade + Project: sucesso | +3 / 0 | Base compartilhada de favoritos escolhida, mas storage precisa validar JSON/registro, tratar falha de leitura/escrita e incluir testes de corrupção, reload e storage indisponível. Justificar/remover alterações transitivas do lockfile. |
 
-1. **Conciliar a dependência #127.** A PR cria `useFavoritos.ts` e `favoritosStorage.ts`, embora a Issue #127 seja responsável pelo contrato comum de favoritos e continue pendente. Definir com o responsável a interface pública do hook, chave e formato de armazenamento; garantir uma implementação compartilhada e integração com o fluxo real de favoritar.
-2. **Definir a configuração canônica de rotas.** A rota foi adicionada em `src/main.tsx` e `src/routes/AppRoutes.tsx`. Coordenar a solução com a Issue #31 e com PRs que alteram os mesmos arquivos; evitar duas fontes de verdade.
-3. **Preservar foco visual.** O título recebe foco programático, mas `focus:outline-none` remove o indicador visual. Usar estilo de foco perceptível, especialmente após desfavoritar com teclado.
+**Legenda da comparação:** `+X / -Y` = commits exclusivos da branch / commits que faltam em relação a `develop`. A comparação não substitui análise de conflitos por arquivo nem testes após integração.
 
-#### Condição para reavaliar
+## 3. PRs com maior prontidão técnica
 
-- [ ] Contrato e responsabilidade de #127 conciliados.
-- [ ] Roteamento canônico decidido e integração combinada verificada.
-- [ ] Indicador visual de foco corrigido e testado.
-- [ ] Testes, lint, build e CI conferidos no HEAD atualizado.
-- [ ] Review formal e decisão de QA registradas.
+### Grupo A — podem seguir para validação final de QA
 
-### PR #164 — notificações temporárias
+Os cinco PRs abaixo têm review formal APPROVED no HEAD consultado, workflows de qualidade e Project com sucesso, branch sem commits atrás de `develop` e escopo isolado:
 
-- **Branch:** `feat/notificacao-temporaria`
-- **HEAD analisado:** `7a43d2433f8f` (SHA abreviado registrado no controle de integração).
-- **Recomendação:** **Request changes**
-- **CI consultado:** workflow de qualidade passou no commit registrado.
+1. **#166 — testes E2E de exclusão.** Revisão e execução Playwright desktop/mobile reportadas; 6 casos.
+2. **#167 — resumo acessível de filtros.** Componente isolado, aprovado; não inclui integração à página.
+3. **#170 — resumo acessível de erros.** Propriedade própria e ativação por teclado testadas.
+4. **#175 — utilitários E2E.** 10 casos desktop/mobile reportados; completar autoria na descrição.
+5. **#177 — fallback de armazenamento.** Componente isolado e aprovado.
 
-#### Correção solicitada
+**Decisão:** solicitar/verificar a decisão de QA e evidência associada a cada Issue. Se QA estiver aprovado e não houver conversa pendente, estes são os primeiros candidatos para merge individual. Reexecutar CI após qualquer atualização.
 
-A semântica de anúncio precisa refletir a prioridade da mensagem. Não combinar de forma inconsistente `role="alert"` com `aria-live="polite"`. Mensagens informativas/sucesso devem usar anúncio educado quando apropriado; erros que exigem atenção imediata devem usar semântica assertiva consistente. Confirmar o comportamento com testes acessíveis e garantir limpeza de timers/fechamento sem anúncios duplicados.
+### Grupo B — aprovação técnica obtida, mas integração coordenada necessária
 
-#### Condição para reavaliar
+- **#168 (retry):** aprovado e atualizado em relação à revisão anterior. Integrar com o conjunto de Locais.
+- **#171 (compartilhamento):** aprovado; integrar depois de #136 por compartilhar página de detalhes.
+- **#172 (responsividade Cadastro):** aprovado; aguardar alinhamento da base do formulário com #116/#119.
+- **#173 (responsividade Locais):** aprovado; integrar depois das alterações funcionais em Locais.
+- **#165 (ConfirmDialog):** aprovado, mas está 2 commits atrás de develop; atualizar/revalidar antes de merge.
 
-- [ ] Semântica de status e alerta corrigida.
-- [ ] Testes cobrem o tipo de anúncio esperado e fechamento/limpeza.
-- [ ] CI conferido no HEAD atualizado.
-- [ ] Review formal e QA registrados.
+Esses PRs não devem ser misturados em um único merge. Integrar um por vez, testar a combinação e reavaliar as demais branches.
 
-### PR #165 — testes de ConfirmDialog
+## 4. Bloqueios e dependências que impedem merge
 
-- **Branch:** `feature/148-testes-confirm-dialog`
-- **HEAD analisado:** `65b0c738201f` (SHA abreviado registrado no controle de integração).
-- **Recomendação:** **Request changes**
-- **CI consultado:** workflow de qualidade passou no commit registrado.
+1. **#122:** falha de build causada pelo novo campo obrigatório `avaliacao` ausente em registros e no estado inicial do cadastro.
+2. **#145 ↔ #180:** #180 é a implementação compartilhada escolhida para favoritos. #180 precisa primeiro corrigir validação e tratamento de erro do armazenamento; depois #145 deve consumir o mesmo contrato, sem duplicar hook/storage.
+3. **#164:** semântica ARIA de aviso ainda não foi corrigida no HEAD analisado.
+4. **#169 ↔ #135 ↔ #168 ↔ #173 ↔ #176 ↔ #178:** conjunto compartilha `Locais.tsx`/testes e filtros. #169 e #178 têm bloqueios; #176 tem alteração de lockfile não justificada. Resolver primeiro os bloqueios e testar a combinação.
+5. **#136 ↔ #171:** ambos alteram `LocalDetalhe.tsx` e testes. #136 aprovado; #171 deve ser revalidado depois da combinação.
+6. **#116 ↔ #172:** ambos afetam Cadastro; #116 tem descrição incompatível com o diff atual e está em changes requested.
+7. **#119:** corrigir título da Home efetivamente montada pela rota inicial. Não basta o teste isolado do componente alternativo.
+8. **#121/#120/#114/#116:** branches com 37 commits atrás de develop; atualização e revalidação obrigatórias.
+9. **#178:** issue vinculada correta (#124) não está indicada no fechamento do PR e automação do Project falhou.
+10. **#179:** escopo entregue não corresponde à Issue #160.
+11. **#174:** os links nos tutoriais apontavam para caminho inexistente. Os dois tutoriais foram atualizados nesta branch para apontar a `docs/pull-requests-docs/controle-integracao-cp3.md`; o PR ainda precisa de nova revisão para confirmar a correção.
 
-#### Correções solicitadas
+## 5. Ordem operacional recomendada
 
-1. A Issue #148 pede testes unitários do componente de confirmação; os testes estão excessivamente acoplados à página Cadastro. Isolar os testes do `ConfirmDialog` para validar o componente sem depender da implementação da página.
-2. O teste de retorno de foco desmonta o componente em vez de verificar a transição real de aberto para fechado. Testar a interação completa e confirmar que, ao fechar, o foco retorna ao elemento de origem conforme o contrato do componente.
+A ordem abaixo é condicional e não representa autorização de merge:
 
-#### Condição para reavaliar
+| Etapa | PRs | Condição |
+|---|---|---|
+| 1 — candidatos isolados | #166, #167, #170, #175, #177 | Confirmar QA aprovado, conversas resolvidas e CI no HEAD; integrar individualmente. |
+| 2 — componentes aprovados com pequena defasagem | #165 | Atualizar os 2 commits atrás, resolver conflitos, reexecutar testes/CI e obter nova review se o diff mudar. |
+| 3 — detalhes | #136 → #171 | #136 já aprovado, mas branch 12 commits atrás; atualizar e integrar/testar antes de #171. |
+| 4 — recuperação/listagem | #168 → #169 (após correções) → #135 → #176 (após lockfile) → #178 (após vínculo) → #173 | Revalidar os arquivos compartilhados após cada integração. A ordem exata deve ser revista conforme o conteúdo final de cada branch. |
+| 5 — cadastro e títulos | #119 (após correção) → #116 (após correção e atualização) → #172 | Corrigir a Home real e a documentação do cadastro; reexecutar testes combinados. |
+| 6 — favoritos | #180 (após correções) → #145 (adaptado ao contrato) | Um único hook/storage compartilhado; validar persistência, falhas e fluxo completo. |
+| 7 — restantes | #111, #114, #120, #121, #122, #162, #164, #174, #176, #178, #179 | Somente depois de resolver os bloqueios listados, atualizar branches e obter nova review/QA. |
 
-- [ ] Testes unitários independentes do Cadastro.
-- [ ] Retorno de foco validado em uma transição real de aberto para fechado.
-- [ ] Cobertura de teclado e Escape conferida conforme o contrato do diálogo.
-- [ ] CI, review formal e QA atualizados.
+**Nota:** #121 é uma base de testes histórica, mas está muito atrasada; não a integre automaticamente antes de comparar o que já foi incorporado a develop. Verifique se sua entrega ainda é necessária ou se já foi absorvida por merges posteriores.
 
-### PR #166 — testes E2E de exclusão de locais
+## 6. Regras de liberação de merge
 
-- **Branch:** `149-dev-criar-testes-e2e-da-exclusão-de-locais`
-- **HEAD analisado:** `fbe619c911fd` (SHA abreviado registrado no controle de integração).
-- **Recomendação:** **Approve**
-- **CI consultado:** workflows disponíveis passaram; o workflow de qualidade padrão não executa Playwright.
+Um PR só pode ser considerado pronto quando todos os itens forem verdadeiros:
 
-#### Pontos positivos
+- [ ] Issue vinculada e milestone conferidas.
+- [ ] Branch atualizada com `develop`; comparação sem atraso relevante e sem conflito.
+- [ ] Diff revisado no HEAD atual e compatível com o escopo/Issue.
+- [ ] Review formal APPROVED válida para o HEAD atual.
+- [ ] Todas as conversas e threads resolvidas ou com decisão documentada.
+- [ ] Workflow de qualidade passou no HEAD atual.
+- [ ] Automação do Project não apresenta falha impeditiva.
+- [ ] Testes específicos (incluindo Playwright quando aplicável) executados e evidenciados.
+- [ ] QA aprovou formalmente e evidência está vinculada à Issue/PR.
+- [ ] Dependências e PRs que compartilham arquivos foram integrados/retestados na ordem adequada.
 
-- Cenários cobrem cancelamento, confirmação e falha ao persistir.
-- A estratégia de contexto/fixtures do Playwright ajuda a isolar os dados persistidos entre cenários.
-- A implementação é voltada a testes E2E e não exige alterar o código de produção.
+## 7. Histórico da rodada anterior
 
-#### Ação complementar
+O documento de 28/10 registrava 25 PRs abertos. Em 03/11 foram identificados 28, incluindo #178, #179 e #180. O estado técnico de vários PRs mudou substancialmente: houve novas reviews, correções e atualização de alguns commits. Esta rodada substitui as recomendações antigas quando há evidência mais recente no GitHub.
 
-O checklist de isolamento/evidência na descrição da PR estava desmarcado. Após registrar a explicação de como o contexto e as fixtures isolam os dados, o autor deve atualizar o checklist. A aprovação técnica não deve ser interpretada como confirmação de que os testes Playwright foram executados pelo CI padrão; essa execução deve ser conferida separadamente.
+O registro histórico das análises individuais de 28/10 permanece útil para entender a origem dos comentários, mas as decisões vigentes são as tabelas e bloqueios desta atualização.
 
-#### Condição para encerrar
+## 8. Registro para a próxima rodada
 
-- [ ] Checklist/evidência de isolamento atualizado pelo autor.
-- [ ] Resultado real dos testes E2E confirmado.
-- [ ] Review formal e QA registrados.
-
-### PR #167 — resumo acessível de filtros
-
-- **Branch:** `feature/153-resumo-filtros`
-- **HEAD analisado:** `c37f69855d5a` (SHA abreviado registrado no controle de integração).
-- **Recomendação:** **Approve**
-- **CI consultado:** workflows disponíveis passaram no commit registrado.
-
-#### Pontos positivos
-
-- O componente recebe os filtros por propriedades e não incorpora lógica da página.
-- Os testes cobrem os estados relevantes do componente.
-- O escopo está adequadamente isolado.
-
-#### Limite de escopo
-
-A aprovação desta entrega cobre o componente e seus testes. Não significa que o resumo já esteja integrado à página de Locais; essa integração deve ser acompanhada separadamente.
-
-#### Condição para encerrar
-
-- [ ] Review formal e QA registrados.
-- [ ] Integração à página tratada em tarefa/PR apropriada, caso continue prevista.
-
-### PR #168 — retry de carregamento
-
-- **Branch:** `feature/130-retry-carregamento`
-- **HEAD analisado:** `aa55c9e54e97e4a3b53adf988cf564ce34c69bba`
-- **Recomendação:** **Request changes**
-- **CI consultado:** workflows disponíveis concluídos com sucesso no commit analisado.
-
-#### Correções solicitadas
-
-1. **Preservação de categoria:** o teste chamado `mantém a categoria selecionada após uma falha consecutiva` deixa a categoria no valor padrão vazio. Selecionar uma categoria real e verificar que ela permanece selecionada depois da falha/tentativa.
-2. **Estado pendente:** o teste `desabilita o botão enquanto tenta carregar novamente` só verifica que o botão está habilitado após a tentativa. Manter a operação pendente no teste, verificar o texto “Tentando novamente...” e comprovar que o botão fica desabilitado e não inicia chamadas concorrentes.
-3. **Foco após sucesso:** quando o retry tem sucesso, o componente de erro e o botão desaparecem. Definir e testar um destino de foco lógico após essa transição, principalmente quando o retry é iniciado por teclado.
-
-#### Coordenação
-
-A PR compartilha `Locais.tsx` e testes com outras entregas de busca, filtros, URL e responsividade, incluindo #135, #169, #173 e #176. Revalidar o fluxo combinado após integração/rebase.
-
-#### Condição para reavaliar
-
-- [ ] Categoria ativa preservada e comprovada por teste.
-- [ ] Estado pendente, botão desabilitado e prevenção de tentativas concorrentes testados.
-- [ ] Foco após sucesso definido e testado.
-- [ ] Testes, lint, build e CI conferidos no HEAD atualizado.
-- [ ] Review formal e QA registrados.
-
-### PR #170 — resumo acessível de erros de formulário
-
-- **Branch:** `158-dev-criar-componente-de-resumo-acessível-dos-erros-do-formulário`
-- **HEAD analisado:** `244db01346458aab9288b04d9736fcb2d2c0d77e`
-- **Recomendação:** **Request changes**
-- **CI consultado:** workflows disponíveis concluídos com sucesso no commit analisado.
-
-#### Correções solicitadas
-
-1. **Verificação de referências:** `erro.campo in referencias` também aceita propriedades herdadas, como `toString`, mesmo que não exista referência real de campo. Usar validação de propriedade própria, por exemplo `Object.hasOwn(referencias, erro.campo)`, e adicionar teste para chave herdada.
-2. **Teclado:** os testes verificam o foco após clique, mas não a ativação por teclado. Adicionar testes para Enter e Espaço no botão de cada erro e verificar que somente o campo correspondente recebe foco.
-
-#### Condição para reavaliar
-
-- [ ] Apenas propriedades próprias de `referencias` são consideradas.
-- [ ] Teste para chave herdada sem referência real adicionado.
-- [ ] Ativação por Enter e Espaço testada.
-- [ ] Testes, lint, build e CI conferidos no HEAD atualizado.
-- [ ] Review formal e QA registrados.
-
-## 3. Acompanhamento de pendências
-
-Use esta tabela para atualizar a situação depois de cada nova rodada. “Pendente” significa que a recomendação ainda precisa ser verificada no GitHub; não significa que uma review formal tenha sido submetida.
-
-| PR | Recomendação registrada | Próximo passo | Estado do acompanhamento |
-|---|---|---|---|
-| #145 | Request changes | Conciliar #127, rotas e foco visual | Pendente de confirmação |
-| #164 | Request changes | Corrigir semântica de anúncios | Pendente de confirmação |
-| #165 | Request changes | Isolar testes e validar retorno de foco | Pendente de confirmação |
-| #166 | Approve | Atualizar checklist e confirmar execução E2E | Pendente de confirmação |
-| #167 | Approve | Registrar review/QA e acompanhar integração | Pendente de confirmação |
-| #168 | Request changes | Corrigir testes de categoria, estado pendente e foco | Pendente de confirmação |
-| #170 | Request changes | Corrigir validação de referências e testes de teclado | Pendente de confirmação |
-
-### Checklist para a próxima revisão
-
-- [ ] Confirmar se o HEAD de cada PR mudou desde a revisão registrada.
-- [ ] Ler comentários e threads existentes e verificar se as correções foram feitas.
-- [ ] Executar/verificar testes, lint, build e CI no commit atual.
-- [ ] Confirmar se a review formal corresponde ao HEAD atual.
-- [ ] Registrar separadamente a decisão de QA.
-- [ ] Atualizar esta documentação com data, SHA, evidências e próximos passos.
-- [ ] Não marcar uma recomendação como concluída antes de confirmar o estado real no GitHub.
-
-## 4. Regra de responsabilidade
-
-As PRs da CP3 devem ser corrigidas pelos respectivos autores/desenvolvedores. QA e Tech Lead devem revisar, documentar evidências, abrir comentários e solicitar mudanças, sem modificar diretamente o código de implementação de outra pessoa. A branch `feature/133-controle-integracao-cp3` é a exceção para manutenção desta documentação de coordenação.
-
-Uma recomendação `Approve` ou `Request changes` neste arquivo é apenas o resultado da análise técnica registrada. A decisão formal só existe quando publicada no GitHub por um revisor autorizado; aprovação técnica não substitui o QA nem libera automaticamente o merge.
+- Data/hora: [preencher]
+- SHA atual de develop: [preencher]
+- PRs integrados desde esta rodada: [preencher]
+- PRs fechados sem merge: [preencher]
+- Novos commits e SHAs: [PR + SHA anterior → atual]
+- Reviews recebidas: [PR + decisão + autor + data]
+- QA aprovado/pendente: [PR/Issue + evidência]
+- Falhas de CI/Project: [PR + SHA + workflow]
+- Conversas abertas: [PR + responsável + próxima ação]
+- Mudanças na ordem de integração: [motivo]
