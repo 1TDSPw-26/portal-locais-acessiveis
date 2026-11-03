@@ -4,7 +4,7 @@
 
 Transformar necessidades em demandas executáveis, revisar a solução técnica e integrar somente o que foi aprovado.
 
-> Para a rodada atual de integração, consulte também [Controle de integração CP3](../controle-integracao-cp3.md). A ordem ali registrada é uma proposta operacional baseada no estado consultado em 26/10/2026; revalide o estado do GitHub antes de cada merge.
+> Para a rodada atual de integração, consulte também [Controle de integração CP3](../pull-requests-docs/controle-integracao-cp3.md). A ordem ali registrada é uma proposta operacional; consulte a rodada mais recente e revalide o estado do GitHub antes de cada merge.
 
 ## Parte A — refinar uma demanda
 
@@ -144,7 +144,7 @@ Se o autor enviou commits depois das aprovações, exija nova revisão. Aprovaç
 
 ## Parte D — integrar uma sequência de PRs
 
-Quando vários PRs modificam o mesmo arquivo, não escolha a ordem somente pela data de criação. Use o [controle de integração CP3](../controle-integracao-cp3.md), confira as dependências e integre um PR por vez.
+Quando vários PRs modificam o mesmo arquivo, não escolha a ordem somente pela data de criação. Use o [controle de integração CP3](../pull-requests-docs/controle-integracao-cp3.md), confira as dependências e integre um PR por vez.
 
 Depois de cada merge:
 
