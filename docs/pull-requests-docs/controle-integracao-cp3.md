@@ -41,7 +41,7 @@ Esta seção prevalece sobre as tabelas históricas de 28/10 abaixo. A branch `d
 | #171 | #126 | APPROVED | Passou | Passou | 1/0 | Integrar após #136; retestar página de detalhes. |
 | #172 | #138 | APPROVED | Passou | Passou | 2/0 | Coordenar com Cadastro (#116/#119). |
 | #173 | #139 | APPROVED | Passou | Passou | 2/0 | Integrar após mudanças funcionais da listagem. |
-| #174 | #133 | CHANGES_REQUESTED | Passou | Passou | 8/0 | Links dos tutoriais corrigidos nesta branch; solicitar nova review e validar PR body. |
+| #174 | #133 | CHANGES_REQUESTED (review ainda não refeita) | **Em execução após os commits desta atualização** | **Em execução** | 12/0 | Links dos tutoriais corrigidos nesta branch; solicitar nova review e validar PR body. |
 | #175 | #147 | APPROVED | Passou | Passou | 1/0 | Candidato de QA; preencher autoria `@usuario`. 10 E2E desktop/mobile reportados. |
 | #176 | #137 | CHANGES_REQUESTED | Passou | Passou | 2/0 | Justificar/remover alteração de package-lock. |
 | #177 | #152 | APPROVED | Passou | Passou | 1/0 | Candidato de QA; componente isolado. |
