@@ -27,3 +27,4 @@ pnpm
 
 /playwright-report/
 /test-results/
+/coverage/
