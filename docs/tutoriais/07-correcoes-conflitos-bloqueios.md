@@ -115,7 +115,7 @@ Um bloqueio aceito gera replanejamento. Ele não produz nota integral automátic
 
 ## Parte F — conflito entre PRs e proteção da milestone CP3
 
-Para a integração atual, consulte o [Controle de integração CP3](../controle-integracao-cp3.md). Ele identifica PRs que compartilham arquivos, pré-requisitos e a ordem sugerida. A lista é um retrato da consulta realizada em 26/10/2026 e deve ser atualizada/revalidada antes de cada integração.
+Para a integração atual, consulte o [Controle de integração CP3](../pull-requests-docs/controle-integracao-cp3.md). Ele identifica PRs que compartilham arquivos, pré-requisitos e a ordem sugerida. A lista é um retrato da rodada mais recente registrada no documento e deve ser revalidada antes de cada integração.
 
 - Confira a milestone da **Issue vinculada** ao PR; não classifique apenas pelo título ou pela branch.
 - **PR fora da milestone CP3:** QA ou Tech Lead pode coordenar uma correção na branch do PR, desde que tenha permissão, combine a alteração com o responsável, mantenha o escopo, registre o motivo e execute os testes.
