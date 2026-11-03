@@ -1,19 +1,74 @@
 # Controle de integração CP3
 
 **Issue responsável:** [#133 — Organizar a integração das pendências e revisar os Pull Requests](https://github.com/1TDSPw-26/portal-locais-acessiveis/issues/133)  
-**Data da consulta-base:** 28/10/2026  
+**Data da consulta-base histórica:** 28/10/2026
+**Última atualização de situação:** 03/11/2026  
 **Branch desta documentação:** `feature/133-controle-integracao-cp3`
 
 > Este documento é um plano de coordenação, não uma autorização de merge. Estado de CI, aprovações, conversas, conflito de merge e milestone podem mudar. Confira novamente o GitHub antes de cada integração.
 
-## 1. Regra de classificação e autorização para alterações
 
-A consulta de **28/10/2026** encontrou **25 Pull Requests abertos e ainda não integrados**: 24 PRs de entrega e o PR **#174**, que contém esta documentação de coordenação. Os 24 PRs de entrega se dividem em **7 fora da CP3** e **17 da CP3**. O #174 entra na contagem geral, mas fica fora da ordem funcional da seção 2 para evitar que o documento de coordenação seja tratado como uma entrega de produto.
+## Situação atual — atualização de 03/11/2026
+
+Esta seção prevalece sobre as tabelas históricas de 28/10 abaixo. A branch `develop` consultada aponta para `db7b8c653b0d7820edac7565265a7350ad75d2b6` (21/10/2026). Foram localizados 28 PRs abertos. Todos aparecem com `mergeable: true`, mas isso não substitui a comparação de commits: há branches com até 37 commits atrás. Reviews formais atuais: 14 `APPROVED` e 14 `CHANGES_REQUESTED`. Nenhum merge foi executado nesta rodada e não foi confirmada aprovação formal de QA para cada candidato.
+
+**Candidatos para encaminhar à confirmação final de QA:** #166, #167, #170, #175 e #177. Têm aprovação técnica no HEAD consultado, workflows de qualidade e Project bem-sucedidos e branches alinhadas com develop. Só podem ser integrados individualmente após QA aprovado, conversas resolvidas e checagem final do HEAD/CI.
+
+**Aprovados tecnicamente, mas exigem integração coordenada:** #165 (2 commits atrás), #168, #171, #172 e #173. Não realizar merge em lote; atualizar/retestar quando houver sobreposição de arquivos.
+
+**Bloqueios prioritários:** #111, #114, #116, #119, #122, #145, #162, #164, #169, #174, #176, #178, #179 e #180 estão em `CHANGES_REQUESTED`. #122 tem workflow de qualidade falhando; #178 tem automação do Project falhando. #120, #121, #114 e #116 estão 37 commits atrás de develop e exigem atualização. #145 depende do contrato compartilhado que será entregue por #180.
+
+| PR | Issue | Review atual | CI qualidade | Project | Divergência (ahead/behind) | Ação prioritária |
+|---|---|---|---|---|---|---|
+| #111 | #75 | CHANGES_REQUESTED | Passou | Passou | 5/2 | Corrigir descrição/roteiro: persistência atual é localStorage; atualizar arquivos e comportamento documentados. |
+| #114 | #63 | CHANGES_REQUESTED | Passou | Passou | 3/37 | Descrição e roteiro não correspondem ao diff atual (teste de regressão); atualizar e revalidar. |
+| #116 | #71 | CHANGES_REQUESTED | Passou | Passou | 1/37 | Corrigir documentação de implementação/fluxo de cadastro; diff não usa RHF/Zod como descrito. |
+| #119 | #86 | CHANGES_REQUESTED | Passou | Passou | 4/0 | Corrigir título da Home realmente montada na rota inicial e testar via rotas reais. |
+| #120 | #84 | APPROVED | Passou | Passou | 1/37 | Atualizar branch; revalidar testes de serviço e descrição. |
+| #121 | #85 | APPROVED | Passou | Histórico misto | 2/37 | Atualizar branch e confirmar se a entrega de configuração ainda é necessária. |
+| #122 | #59 | CHANGES_REQUESTED | **Falhou** | Passou | 8/12 | Adicionar `avaliacao` a todos os registros e ao estado inicial do cadastro; novo CI verde. |
+| #135 | #125 | APPROVED | Passou | Passou | 1/12 | Atualizar e integrar após o grupo de busca/URL. |
+| #136 | #132 | APPROVED | Passou | Passou | 2/12 | Atualizar; integrar antes de #171 e retestar detalhes. |
+| #145 | #128 | CHANGES_REQUESTED | Passou | Passou | 3/12 | Adaptar à base compartilhada #180; evitar duplicar hook/storage. |
+| #162 | #157 | CHANGES_REQUESTED | Passou | Passou | 1/2 | Completar normalização recursiva em arrays/objetos aninhados. |
+| #164 | #150 | CHANGES_REQUESTED | Passou | Histórico misto | 1/2 | Corrigir semântica ARIA de aviso/sucesso/erro. |
+| #165 | #148 | APPROVED | Passou | Passou | 4/2 | Atualizar branch e revalidar. |
+| #166 | #149 | APPROVED | Passou | Passou | 2/0 | Candidato de QA; 6 testes E2E desktop/mobile reportados. |
+| #167 | #153 | APPROVED | Passou | Passou | 1/0 | Candidato de QA; componente isolado. |
+| #168 | #130 | APPROVED | Passou | Passou | 6/0 | Integrar coordenado com PRs que alteram Locais. |
+| #169 | #123 | CHANGES_REQUESTED | Passou | Passou | 3/0 | Cobrir limpeza/histórico/params da URL; revisar `apagar.txt`. |
+| #170 | #158 | APPROVED | Passou | Passou | 4/0 | Candidato de QA; teclado e referências próprias testados. |
+| #171 | #126 | APPROVED | Passou | Passou | 1/0 | Integrar após #136; retestar página de detalhes. |
+| #172 | #138 | APPROVED | Passou | Passou | 2/0 | Coordenar com Cadastro (#116/#119). |
+| #173 | #139 | APPROVED | Passou | Passou | 2/0 | Integrar após mudanças funcionais da listagem. |
+| #174 | #133 | CHANGES_REQUESTED | Passou | Passou | 8/0 | Links dos tutoriais corrigidos nesta branch; solicitar nova review e validar PR body. |
+| #175 | #147 | APPROVED | Passou | Passou | 1/0 | Candidato de QA; preencher autoria `@usuario`. 10 E2E desktop/mobile reportados. |
+| #176 | #137 | CHANGES_REQUESTED | Passou | Passou | 2/0 | Justificar/remover alteração de package-lock. |
+| #177 | #152 | APPROVED | Passou | Passou | 1/0 | Candidato de QA; componente isolado. |
+| #178 | #124 | CHANGES_REQUESTED | Passou | **Falhou** | 2/0 | Corrigir `Closes #NUMERO_DA_ISSUE` para #124; retestar automação; coordenar arquivos Locais. |
+| #179 | #160 | CHANGES_REQUESTED | Passou | Passou | 2/0 | Entregar IndicadorPosicao isolado ou aprovar formalmente mudança de escopo. |
+| #180 | #127 | CHANGES_REQUESTED | Passou | Passou | 3/0 | Validar JSON/itens e tratar falha getItem/setItem; adicionar testes de armazenamento. |
+
+### Ordem prática proposta
+
+1. Encaminhar #166, #167, #170, #175 e #177 à confirmação final de QA; integrar individualmente somente com QA aprovado e conversas resolvidas.
+2. Atualizar/revalidar #165; depois #136 e #171 em sequência.
+3. Resolver os bloqueios de #169 e #178 antes de compor a sequência da listagem: #168, #169, #135, #176, #178 e #173, retestando o conjunto após cada merge.
+4. Resolver #119 e a documentação de #116; depois coordenar #172. Atualizar branches antigas #114, #120 e #121 antes de qualquer decisão.
+5. Corrigir #180 como contrato único de favoritos; então adaptar #145 para consumir essa implementação.
+6. Manter #122, #162, #164, #179 e os demais PRs com `CHANGES_REQUESTED` bloqueados até correção e nova revisão.
+
+**Regra de liberação:** CI verde + review APPROVED no HEAD atual + conversas resolvidas + dependências integradas + QA aprovado. Se qualquer commit novo for enviado, revalidar revisão e CI. Nenhum item nesta seção autoriza merge por si só.
+
+---
+\n## 1. Regra de classificação e autorização para alterações
+
+A consulta histórica de **28/10/2026** encontrou 25 PRs. Na atualização de **03/11/2026**, foram encontrados **28 PRs abertos e ainda não integrados**: 27 PRs de entrega e o PR **#174**, de coordenação documental. Pela milestone da Issue vinculada, a classificação atual é **7 fora da CP3** (#111, #114, #116, #119, #120, #121 e #122) e **21 da CP3** (incluindo o PR documental #174). Os PRs #178, #179 e #180 são novas entregas CP3. O #174 fica fora da ordem funcional para não ser tratado como entrega de produto.
 
 A classificação usa a **milestone da Issue vinculada no corpo do PR**. Issue na milestone 3 é tratada como CP3; Issue sem milestone ou na milestone 2 é tratada como fora da CP3. As milestones dos novos PRs #175, #176 e #177 foram conferidas na consulta atual.
 
 - **FORA DA CP3 — QA/Tech Lead PODE corrigir com coordenação:** **#111, #114, #116, #119, #120, #121 e #122**. Mudanças devem ser feitas na branch do próprio PR, com alinhamento com o autor, justificativa explícita, escopo preservado e nova execução dos testes/revisão. Isso não autoriza push em `develop`, bypass de revisão ou merge automático.
-- **CP3 — QA/Tech Lead NÃO DEVE alterar código de implementação diretamente:** **#135, #136, #145, #162, #164, #165, #166, #167, #168, #169, #170, #171, #172, #173, #175, #176 e #177**. QA e Tech Lead podem revisar, reunir evidências, comentar e solicitar mudanças; o autor/desenvolvedor responsável deve corrigir o código na própria branch.
+- **CP3 — QA/Tech Lead NÃO DEVE alterar código de implementação diretamente:** **#135, #136, #145, #162, #164, #165, #166, #167, #168, #169, #170, #171, #172, #173, #175, #176, #177, #178, #179 e #180**. QA e Tech Lead podem revisar, reunir evidências, comentar e solicitar mudanças; o autor/desenvolvedor responsável deve corrigir o código na própria branch.
 - **Coordenação/documentação CP3:** **#174**, vinculado à Issue #133. A atualização deste documento deve ocorrer na branch própria `feature/133-controle-integracao-cp3`; a exceção documental não permite alterar código de implementação nas branches dos demais PRs.
 
 Esta regra preserva a autoria e evita alterações silenciosas em entregas de outras pessoas. Se a milestone de uma Issue mudar no GitHub, atualize a classificação antes de qualquer intervenção. A condição `mergeable: true` significa apenas que o GitHub não reporta conflito de merge naquele momento; não significa que o PR esteja aprovado ou pronto para integrar.
