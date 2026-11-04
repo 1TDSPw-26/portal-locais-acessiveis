@@ -42,6 +42,12 @@ export default function LocalCard({ local, onExcluir }: LocalCardProps) {
           <span className="sr-only"> de {local.nome}</span>
           <span aria-hidden="true">→</span>
         </Link>
+        <Link
+          to={`/locais/${local.id}/editar`}
+          className="inline-flex min-h-11 items-center font-bold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+        >
+          Editar<span className="sr-only"> {local.nome}</span>
+        </Link>
         {onExcluir && (
           <button
             type="button"

@@ -194,6 +194,23 @@ function impedirDuplicidade(
   }
 }
 
+function impedirDuplicidadePorNomeEEndereco(
+  locais: Local[],
+  dados: DadosLocal,
+  idIgnorado: number,
+): void {
+  const duplicado = locais.some(
+    (local) =>
+      local.id !== idIgnorado &&
+      normalizarTexto(local.nome) === normalizarTexto(dados.nome) &&
+      normalizarTexto(local.endereco) === normalizarTexto(dados.endereco),
+  );
+
+  if (duplicado) {
+    throw new Error("Já existe um local com as mesmas informações.");
+  }
+}
+
 export function listarLocais(): Local[] {
   return lerArmazenamento().locais;
 }
@@ -249,7 +266,7 @@ export function atualizarLocal(
   }
 
   const dadosPreparados = prepararDados(dados);
-  impedirDuplicidade(armazenamento.locais, dadosPreparados, id);
+  impedirDuplicidadePorNomeEEndereco(armazenamento.locais, dadosPreparados, id);
   const atualizado: Local = {
     ...dadosPreparados,
     id,
