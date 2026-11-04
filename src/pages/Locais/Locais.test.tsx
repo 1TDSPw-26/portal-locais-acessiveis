@@ -20,6 +20,17 @@ function nomesNaLista() {
 }
 
 describe('Página Locais — exclusão com confirmação', () => {
+  it('busca por nome ignorando acentos e maiúsculas', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.type(screen.getByRole('searchbox', { name: 'Buscar por nome, categoria ou endereço' }), 'cidadao')
+
+    expect(nomesNaLista()).toContain('Centro de Atendimento ao Cidadão')
+    expect(screen.getByText('1 local encontrado')).toBeInTheDocument()
+    expect(nomesNaLista()).not.toContain('Biblioteca Municipal')
+  })
+
   it('pede confirmação e não exclui ao cancelar', async () => {
     const user = userEvent.setup()
     renderLocais()
