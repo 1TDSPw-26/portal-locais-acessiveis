@@ -1,20 +1,20 @@
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { buscarLocalPorId } from '../../services/locaisService'
+import { useLocalDetalhe } from '../../hooks/useLocalDetalhe'
+import Loading from '../../components/Loading/Loading'
+import EstadoErro from '../../components/EstadoErro/EstadoErro'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
 export default function LocalDetalhe() {
   const { id } = useParams()
-  const idNumerico = id === undefined ? undefined : Number(id)
-  const local =
-    idNumerico !== undefined && Number.isSafeInteger(idNumerico)
-      ? buscarLocalPorId(idNumerico)
-      : undefined
+  const { dado: local, carregando, erro, recarregar } = useLocalDetalhe(id)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
+    if (carregando || erro) return
+
     const tituloAnterior = document.title
     document.title = local
       ? `${local.nome} | AcessoLocal`
@@ -27,7 +27,7 @@ export default function LocalDetalhe() {
     return () => {
       document.title = tituloAnterior
     }
-  }, [local])
+  }, [local, carregando, erro])
 
   const breadcrumb = (
     <nav aria-label="Breadcrumb" className="mb-8">
@@ -56,7 +56,14 @@ export default function LocalDetalhe() {
       </ol>
     </nav>
   )
+  
+  if (carregando) {
+    return <Loading mensagem="Carregando detalhes do local..." />
+  }
 
+  if (erro) {
+    return <EstadoErro mensagem={erro} aoTentarNovamente={recarregar} />
+  }
   if (!local) {
     return (
       <section
