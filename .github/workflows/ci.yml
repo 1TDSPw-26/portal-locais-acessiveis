@@ -59,3 +59,19 @@ jobs:
       - name: Executar testes disponíveis
         if: steps.project.outputs.ready == 'true'
         run: npm run test --if-present
+
+      - name: Instalar Chromium para os testes de favoritos
+        if: steps.project.outputs.ready == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Validar favoritos no desktop e no celular
+        if: steps.project.outputs.ready == 'true'
+        run: npm run test:e2e -- tests/favoritos.spec.ts
+
+      - name: Guardar evidências dos favoritos
+        if: always() && steps.project.outputs.ready == 'true'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: evidencias-favoritos
+          path: test-results/
+          if-no-files-found: ignore

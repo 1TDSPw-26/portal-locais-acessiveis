@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buscarLocalPorId } from '../../services/locaisService'
+import useFavoritos from '../../hooks/useFavoritos'
 
 const classeLink =
   'text-brand-primary mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
 
 export default function LocalDetalhe() {
+
   const { id } = useParams()
   const idNumerico = id === undefined ? undefined : Number(id)
   const local =
@@ -13,7 +15,6 @@ export default function LocalDetalhe() {
       ? buscarLocalPorId(idNumerico)
       : undefined
   const tituloRef = useRef<HTMLHeadingElement>(null)
-
   useEffect(() => {
     const tituloAnterior = document.title
     document.title = local
@@ -28,7 +29,8 @@ export default function LocalDetalhe() {
       document.title = tituloAnterior
     }
   }, [local])
-
+  const { ehFavorito, alternarFavorito, erro: erroFavoritos } = useFavoritos()
+  const favorito = local ? ehFavorito(local.id) : false
   const breadcrumb = (
     <nav aria-label="Breadcrumb" className="mb-8">
       <ol className="flex flex-wrap items-center gap-2 text-sm">
@@ -98,6 +100,15 @@ export default function LocalDetalhe() {
       >
         {local.nome}
       </h2>
+      <button
+        type="button"
+        onClick={() => local && alternarFavorito(local)}
+        aria-pressed={favorito}
+        className="mt-4 rounded-md border border-border-subtle px-4 py-2 font-semibold text-brand-primary hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+      >
+        {favorito ? 'Desfavoritar' : 'Favoritar'}
+      </button>
+      {erroFavoritos && <p role="alert" className="mt-3 text-red-900">{erroFavoritos}</p>}
       <p className="mt-3 text-gray-700">{local.descricao}</p>
 
       <dl className="mt-6 grid gap-4 sm:grid-cols-2">
