@@ -111,3 +111,76 @@ describe('Página Locais — exclusão com confirmação', () => {
     ).toBeInTheDocument()
   })
 })
+
+describe('Página Locais — estado vazio da busca', () => {
+  it('orienta o usuário quando a busca não retorna locais', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.type(screen.getByLabelText(/Buscar por nome/), 'xyzxyz')
+
+    expect(
+      screen.getByRole('heading', { name: 'Nenhum local encontrado' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Não encontramos locais para "xyzxyz"/)).toBeInTheDocument()
+    expect(screen.getByText('0 locais encontrados')).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: /Lista de locais/ })).not.toBeInTheDocument()
+  })
+
+  it('menciona busca e categoria quando a combinação não retorna locais', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.selectOptions(screen.getByLabelText('Categoria'), 'Esporte')
+    await user.type(screen.getByLabelText(/Buscar por nome/), 'biblioteca')
+
+    expect(
+      screen.getByText(/categoria "Esporte" para "biblioteca"/),
+    ).toBeInTheDocument()
+  })
+
+  it('mostra a mensagem de categoria quando só o filtro de categoria não retorna locais', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.selectOptions(screen.getByLabelText('Categoria'), 'Serviço público')
+    const botoesExcluir = screen.getAllByRole('button', { name: /^Excluir / })
+    for (const botao of botoesExcluir) {
+      await user.click(botao)
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+      )
+    }
+
+    expect(
+      screen.getByRole('heading', { name: 'Nenhum local encontrado' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Não há locais na categoria "Serviço público"/),
+    ).toBeInTheDocument()
+  })
+
+  it('limpa os filtros pelo estado vazio, devolve a lista e foca a busca', async () => {
+    const user = userEvent.setup()
+    renderLocais()
+
+    await user.type(screen.getByLabelText(/Buscar por nome/), 'xyzxyz')
+    await user.click(screen.getByRole('button', { name: 'Limpar filtros' }))
+
+    expect(
+      screen.queryByRole('heading', { name: 'Nenhum local encontrado' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('18 locais encontrados')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Buscar por nome/)).toHaveFocus()
+  })
+
+  it('não mostra "Limpar filtros" quando não há local cadastrado', () => {
+    listarLocais().forEach((local) => excluirLocal(local.id))
+    renderLocais()
+
+    expect(screen.getByText('Nenhum local cadastrado ainda.')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Limpar filtros' }),
+    ).not.toBeInTheDocument()
+  })
+})
