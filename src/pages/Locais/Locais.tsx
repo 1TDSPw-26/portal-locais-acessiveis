@@ -4,9 +4,14 @@ import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog'
 import Paginacao from '../../components/Paginacao/Paginacao'
 import { excluirLocal, listarLocais } from '../../services/locaisService'
 import LocalCard from './LocalCard'
+import { aplicarConsulta, CONSULTA_PADRAO, lerConsulta, obterCategorias, type ConsultaLocais } from './filtros'
+import { useLocation, useNavigationType, useSearchParams } from 'react-router-dom'
+
 
 const ITENS_POR_PAGINA = 6
-const TODAS = ''
+const TODAS = CONSULTA_PADRAO.categoria
+//marca no state do historico as navegações feitas pela pagina.
+const ORIGEM_CONSULTA = 'consulta-locais'
 
 const classeCampo =
   'border-border-subtle mt-1 min-h-11 w-full rounded-md border bg-white px-3 text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary'
@@ -23,19 +28,44 @@ function normalizar(texto: string): string {
     .toLowerCase()
 }
 
+function veioDestaPagina(estado: unknown): boolean {
+  return (
+    typeof estado === 'object' &&
+    estado !== null &&
+    'origem' in estado &&
+    estado.origem === ORIGEM_CONSULTA
+  )
+}
+
 function Locais() {
   const [locais, setLocais] = useState<Local[]>(() => listarLocais())
-  const [busca, setBusca] = useState('')
-  const [categoria, setCategoria] = useState(TODAS)
-  const [paginaAtual, setPaginaAtual] = useState(1)
+  const [parametros, setParametros] = useSearchParams()
+  const location = useLocation()
+  const tipoNavegacao = useNavigationType()
+
+  const categorias = obterCategorias(locais)
+  //URL: categoria e página vêm direto dela.
+  const consulta = lerConsulta(parametros, categorias)
+  const { categoria, pagina: paginaAtual } = consulta
+
+  // O campo de busca tem estado próprio para a digitação não perder o cursor.
+  const [busca, setBusca] = useState(consulta.busca)
+  const [chaveLida, setChaveLida] = useState(location.key)
   const [localParaExcluir, setLocalParaExcluir] = useState<Local | null>(null)
   const [aviso, setAviso] = useState<Aviso | null>(null)
   const buscaRef = useRef<HTMLInputElement>(null)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
-  const categorias = [...new Set(
-    locais.map((local) => local.categoria),
-  )].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  // Se a URL mudar por fora (voltar/avançar do navegador, link do menu),
+  // o campo de busca acompanha o valor da URL.
+  if (location.key !== chaveLida) {
+    setChaveLida(location.key)
+    const navegacaoPropria =
+      tipoNavegacao !== 'POP' && veioDestaPagina(location.state)
+    if (!navegacaoPropria) {
+      setBusca(consulta.busca)
+    }
+  }
 
   const termo = normalizar(busca.trim())
   const locaisFiltrados = locais.filter((local) => {
@@ -65,20 +95,42 @@ function Locais() {
     }
   }, [aviso])
 
+  function atualizarUrl(
+    alteracoes: Partial<ConsultaLocais>,
+    { substituir = false } = {},
+  ) {
+    // Regrava a consulta inteira já validada: valores inválidos saem da
+    // URL e parâmetros de outras funcionalidades são preservados.
+    const proxima = {
+      busca,
+      categoria,
+      pagina: paginaCorrigida,
+      ...alteracoes,
+    }
+    setParametros(aplicarConsulta(parametros, proxima), {
+      // A digitação substitui a entrada do histórico para não criar
+      // uma entrada por tecla; as demais ações criam uma entrada nova.
+      replace: substituir,
+      state: { origem: ORIGEM_CONSULTA },
+    })
+  }
+
   function mudarBusca(valor: string) {
     setBusca(valor)
-    setPaginaAtual(1)
+    atualizarUrl({ busca: valor, pagina: 1 }, { substituir: true })
   }
 
   function mudarCategoria(valor: string) {
-    setCategoria(valor)
-    setPaginaAtual(1)
+    atualizarUrl({ categoria: valor, pagina: 1 })
+  }
+
+  function mudarPagina(pagina: number) {
+    atualizarUrl({ pagina })
   }
 
   function limparFiltros() {
     setBusca('')
-    setCategoria(TODAS)
-    setPaginaAtual(1)
+    atualizarUrl(CONSULTA_PADRAO)
     buscaRef.current?.focus()
   }
 
@@ -199,7 +251,7 @@ function Locais() {
           <Paginacao
             paginaAtual={paginaCorrigida}
             totalPaginas={totalPaginas}
-            aoMudarPagina={setPaginaAtual}
+            aoMudarPagina={mudarPagina}
           />
         </>
       ) : (

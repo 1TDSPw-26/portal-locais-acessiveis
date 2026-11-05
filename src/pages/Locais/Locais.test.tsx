@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
 import Locais from './Locais'
 import { excluirLocal, listarLocais } from '../../services/locaisService'
 
@@ -109,5 +109,113 @@ describe('Página Locais — exclusão com confirmação', () => {
     expect(
       screen.getByText('Nenhum local cadastrado ainda.'),
     ).toBeInTheDocument()
+  })
+})
+
+function LocalizacaoAtual() {
+  const location = useLocation()
+  return (
+    <output data-testid="url-atual">
+      {location.pathname + location.search}
+    </output>
+  )
+}
+
+// Simula o botão voltar do navegador
+function BotaoVoltar() {
+  const navigate = useNavigate()
+  return (
+    <button type="button" onClick={() => navigate(-1)}>
+      Voltar no histórico
+    </button>
+  )
+}
+
+function renderLocaisEm(url: string) {
+  return render(
+    <MemoryRouter initialEntries={[url]}>
+      <Locais />
+      <LocalizacaoAtual />
+      <BotaoVoltar />
+    </MemoryRouter>,
+  )
+}
+
+function urlAtual() {
+  return screen.getByTestId('url-atual').textContent ?? ''
+}
+
+function campoBusca() {
+  return screen.getByRole('searchbox', {
+    name: 'Buscar por nome, categoria ou endereço',
+  })
+}
+
+function campoCategoria() {
+  return screen.getByRole('combobox', { name: 'Categoria' })
+}
+
+describe('Página Locais — consulta persistida na URL', () => {
+  // LEITURA: a URL define o que aparece
+  it('reproduz busca e categoria a partir da URL', () => {
+    renderLocaisEm('/locais?q=municipal&categoria=Lazer')
+
+    expect(campoBusca()).toHaveValue('municipal')
+    expect(campoCategoria()).toHaveValue('Lazer')
+    expect(screen.getByText('2 locais encontrados')).toBeInTheDocument()
+  })
+
+  // ATUALIZAÇÃO: mexer no controle muda a URL
+  it('grava a busca na URL enquanto o usuário digita', async () => {
+    const user = userEvent.setup()
+    renderLocaisEm('/locais')
+
+    await user.type(campoBusca(), 'parque')
+
+    expect(urlAtual()).toBe('/locais?q=parque')
+  })
+
+  // RECARREGAR: desmonta e monta de novo com a URL gerada
+  it('preserva o estado ao recarregar com a mesma URL', async () => {
+    const user = userEvent.setup()
+    const { unmount } = renderLocaisEm('/locais')
+
+    await user.type(campoBusca(), 'museu')
+    await user.selectOptions(campoCategoria(), 'Cultura')
+    const urlCompartilhada = urlAtual()
+    unmount()
+
+    renderLocaisEm(urlCompartilhada)
+
+    expect(campoBusca()).toHaveValue('museu')
+    expect(campoCategoria()).toHaveValue('Cultura')
+  })
+
+  // INVÁLIDOS: it.each roda o mesmo teste para vários valores
+  it.each(['abc', '0', '-1', '2.5', '1e3', ''])(
+    'ignora pagina=%s e mostra a primeira página',
+    (pagina) => {
+      renderLocaisEm(`/locais?pagina=${pagina}`)
+
+      expect(
+        screen.getByRole('list', { name: 'Lista de locais, página 1 de 3' }),
+      ).toBeInTheDocument()
+    },
+  )
+
+  // TECLADO: a URL atualiza e o foco não se perde
+  it('mantém o foco e a ordem de tabulação após gravar na URL', async () => {
+    const user = userEvent.setup()
+    renderLocaisEm('/locais')
+
+    await user.tab()
+    expect(campoBusca()).toHaveFocus()
+
+    await user.keyboard('museu')
+    expect(urlAtual()).toBe('/locais?q=museu')
+    expect(campoBusca()).toHaveFocus()
+
+    await user.tab()
+    expect(campoCategoria()).toHaveFocus()
   })
 })
