@@ -30,6 +30,7 @@ function Locais() {
   const [paginaAtual, setPaginaAtual] = useState(1)
   const [localParaExcluir, setLocalParaExcluir] = useState<Local | null>(null)
   const [aviso, setAviso] = useState<Aviso | null>(null)
+  const [avisoLimpeza, setAvisoLimpeza] = useState('')
   const buscaRef = useRef<HTMLInputElement>(null)
   const tituloRef = useRef<HTMLHeadingElement>(null)
 
@@ -48,6 +49,7 @@ function Locais() {
   })
 
   const filtroAtivo = termo !== '' || categoria !== TODAS
+  const podeLimpar = busca !== '' || categoria !== TODAS
   const totalPaginas = Math.max(
     1,
     Math.ceil(locaisFiltrados.length / ITENS_POR_PAGINA),
@@ -68,17 +70,22 @@ function Locais() {
   function mudarBusca(valor: string) {
     setBusca(valor)
     setPaginaAtual(1)
+    setAvisoLimpeza('')
   }
 
   function mudarCategoria(valor: string) {
     setCategoria(valor)
     setPaginaAtual(1)
+    setAvisoLimpeza('')
   }
 
   function limparFiltros() {
     setBusca('')
     setCategoria(TODAS)
     setPaginaAtual(1)
+    setAvisoLimpeza(
+      `Busca e filtros removidos. ${locais.length} locais exibidos.`,
+    )
     buscaRef.current?.focus()
   }
 
@@ -173,7 +180,20 @@ function Locais() {
             ))}
           </select>
         </div>
+        {podeLimpar && (
+          <button
+            type="button"
+            onClick={limparFiltros}
+            className="text-brand-primary border-brand-primary inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 px-4 font-bold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary sm:col-span-2 sm:w-auto sm:justify-self-start"
+          >
+            Limpar busca e filtros
+          </button>
+        )}
       </form>
+
+      <p role="status" className="sr-only">
+        {avisoLimpeza}
+      </p>
 
       <p role="status" className="mt-4 text-gray-700">
         {locaisFiltrados.length === 1
@@ -209,15 +229,6 @@ function Locais() {
               ? 'Nenhum local corresponde aos filtros escolhidos.'
               : 'Nenhum local cadastrado ainda.'}
           </p>
-          {filtroAtivo && (
-            <button
-              type="button"
-              onClick={limparFiltros}
-              className="text-brand-primary mt-2 inline-flex min-h-11 items-center rounded-sm font-bold underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
-            >
-              Limpar filtros
-            </button>
-          )}
         </div>
       )}
 
